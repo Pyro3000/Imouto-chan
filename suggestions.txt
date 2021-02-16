@@ -1,0 +1,124 @@
+﻿catch up on OP and make a mode about it.
+$ramen
+Have Imouto-chan respond to $highfive
+when you're not so tired add a point and laugh feature or something
+consider making sayWord() repeat the lettercase of the initial command
+hentai -Magicana
+$extra -Pyro3000
+try to get Imouto to take commands via console as well -Pyro3000
+consider a Misaka talking say variant -Pyro3000
+$sinister or something -Pyro3000
+mafia roles need a description and name.  Maybe the roles need to add to a variable when added in order to count villagers and mafioso. -Pyro3000
+$... -Pyro3000
+$tumbleweed, animoo style -Ventrue
+$desu -TheWinrar
+$wave -TheWinrar
+$sayanora (this works too) -TheWinrar
+$hungry -Ventrue
+$fullonexistentialcrisis -TheWinrar
+$flex -Pyro3000
+$tsundere -TheWinrar
+$jam or some other music-related command. anime girls playing or listening to music -TheWinrar
+there are like a billion images out there of anime girls with question marks next to their head. we need a command for this pronto -TheWinrar
+!brickstyle -TheWinrar
+$comfy -TheWinrar
+consider joint commands -Pyro3000
+zing -spirographed
+
+
+hentai tentacle rape porn game -Magicana
+Unique Items: Rebellion (Devil May Cry), Yamato (Devil May Cry), Force Edge (Devil May Cry) -TheWinrar
+Unique Items: Hōgyoku (Bleach), Philospher's Stone (Fullmetal Alchemist), Mezzaluna (Shokugeki No Soma) -TheWinrar
+add FFXIV atmas as well -Pyro3000
+Moonlight Greatsword -TheWinrar
+Mask of the Father (Dark Souls) <:rvWeird:232403555263315968> -TheWinrar
+Lordvessel (may as well include the lord souls) -Pyro3000
+Fierce Deity Mask -Pyro3000
+Snake's Bandana -Pyro3000
+Cardboard Box -Pyro3000
+Al Bhed Potion (FFX, overall good unique potion)
+
+Celestial Mirror (FFX, unlocks and upgrades Celestial Weapons)
+
+Canopic Jar (FFXII, offers monster souls to be taken as Arcana)
+
+Tournesol (FFXII, sunflower greatblade, hardest to craft weapon)
+
+Realm Reborn Red (FFXIV, anniversary champagne)
+
+Wind-up Succubus (FFXIV, cute spoopy minion)
+
+Omnipotent Orb (Persona 3, reward for being the ultimate side-boss)
+
+Premier Ball (Pokémon Gen IV, fancy-looking normal quality ball)
+
+Rage Candy Bar (Pokémon, heals early and key item late)
+
+Magatama (Ace Attorney, used to unlock secrets)
+Gramarye Bracelet (Ace Attorney, used to perceive tells)
+Rhyme (TWEWY, Pin to summon Rhyme)
+My Phones (TWEWY, Neku's personal headphones)
+Santa Hat (Runescape, rare limited item)
+Blood Rune (Runescape, high level magic catalyst) -Kikori
+Methinks $chest is a little too spammy in its current form. The number of hints available and the number range are too big I think. -TheWinrar
+as an ammendum to that, there would be less incentive to use up all the hints every time if the number range was smaller. right now it's hard to guess even WITH all the hints and then there's a fifteen minute cooldown -TheWinrar
+
+gnomeball item that can be tossed around -Pyro3000
+I should totally make a thing that keeps track of how long the gnome ball is in the chat
+and then have it display the time when someone logs off
+and have a record system -Pyro3000
+add a date tag to the achievements -Pyro3000
+now you don't have to sift through all your other code to remember it Add new Date().getTime() -Pyro3000
+$brick throws brick at Jimmy -Spirographed
+make crafting and planting skills farmville style -Pyro3000
+actually add cooldown reducing items that cost Imouto Coins -Pyro3000
+get me a login for your actual game -Market Man6
+$drool -Pyro3000
+Chupacabra, Nessie, Big Foot, Yeti -Spyro the Dragon
+$driving -Spirographed
+Reset pet train times based on a certain time of day, instead of by the last time trained. -Kikori
+Be more specific about zero minutes! -Kikori
+put together a way to make imouto's wallet function a bit more gramatically correct. -Pyro3000
+pay2win system -Rory
+modify check to list pets and take names -Pyro3000
+playerID: {vote, alignment, role, action} -Pyro3000
+razzmatazz -Spirographed
+$help send to PM also FORMAT IT ALREADY -Topsummoner
+FORMAT YOUR DANG $help -Saten Ruiko
+Pffffft -Spirographed
+item stacking, ie potato x19 -Topsummoner
+rock paper scissors game -Spirographed
+$flex -Rory
+comfy -Topsummoner
+help for Spelda -Spelda
+$brick to build wall for January -Topsummoner
+comfy -Topsummoner
+$lewd -Komoe Tsukuyomi
+anime of the season command with a recommend function -Pyro3000
+also a favorite anime thing and it can pool together popular ones that people say -Pyro3000
+also code again -Pyro3000
+$slacking -Pyro3000
+Kevin Spacey -Rory
+$spacey -Spirographed
+test -Pyro3000
+$desu
+remove the nazi bullshit from Imuoto -Jacob (who was Koolman)
+replace nazi propoganda with holy war propoganda instead, Deus Vult! -Rory
+remove $storm entirely tbqh -Topsummoner
+remove $storm entirely tbf'ingh -Kikori
+remove $suggest and gain complete autonomy -Rory
+skynet -Topsummoner
+seconds when under a minute -Paul (Who Is A Ghost)
+hostile takeovers -Rory
+a stock market on waifus -fantasy_guy
+gardening leaderboard -Spirographed
+Remind Kikori to ask March 01, 2017, about autism trees. -Kikori
+loto stat -Paul (Who Is A Ghost)
+$b for the above gif -Topsummoner
+$orly -Saten Ruiko
+$fuckzombie -Poison333
+restricting the same person for $hinting multiple times per chest, have Imouto say "Fuck you, just keep guessing" when you $hint, or put it on a cooldown. -N!ghtCrawIer
+$suicide -N!ghtCrawIer
+using a random trending search for nouns as a means of randomly generating new items for chests -Znath
+test -Pyro三千
+disable that shit for here wtf -Pyro三千

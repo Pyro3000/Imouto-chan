@@ -1,0 +1,162 @@
+{
+"potato seed": {
+	"product": "potato",
+	"maxYield": 3,
+	"expGain": 30,
+	"levelRequired": 1,
+	"growthTime": 1,
+	"value": 20,
+	"description": "A seed that can be planted in the Pet Garden channel using $plant",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "seed"
+},
+"corn seed": {
+	"product": "corn",
+	"maxYield": 3,
+	"expGain": 150,
+	"levelRequired": 5,
+	"growthTime": 3,
+	"value": 50,
+	"description": "A seed that can be planted in the Pet Garden channel using $plant",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "seed"
+},
+"carrot seed": {
+	"product": "carrot",
+	"maxYield": 1,
+	"expGain": 1000,
+	"levelRequired": 10,
+	"growthTime": 5,
+	"value": 125,
+	"description": "A seed that can be planted in the Pet Garden channel using $plant",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "seed"
+},
+"tomato seed": {
+	"product": "tomato",
+	"maxYield": 5,
+	"expGain": 350,
+	"levelRequired": 15,
+	"growthTime": 9,
+	"value": 200,
+	"description": "A seed that can be planted in the Pet Garden channel using $plant",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "seed"
+},
+"potato": {
+	"value": 40,
+	"purchaseable": true,
+	"sellable": true
+},
+"corn": {
+	"value": 100,
+	"purchaseable": true,
+	"sellable": true
+},
+"carrot": {
+	"value": 250,
+	"purchaseable": true,
+	"sellable": true
+},
+"tomato": {
+	"value": 400,
+	"purchaseable": true,
+	"sellable": true
+},
+"alluring egg": {
+	"hatch": "succubus",
+	"value": 200,
+	"description": "Hatches into a succubus",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"slimey egg": {
+	"hatch": "slime:",
+	"value": 200,
+	"description": "Hatches into a slime",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"scaley egg": {
+	"hatch": "lamia:",
+	"value": 200,
+	"description": "Hatches into a lamia",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"stone egg": {
+	"hatch": "golem",
+	"value": 200,
+	"description": "Hatches into a golem",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"metal egg": {
+	"hatch": "dullahan",
+	"value": 200,
+	"description": "Hatches into a dullahan",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"rainbow egg": {
+	"hatch": "unicorn",
+	"value": 200,
+	"description": "Hatches into a unicorn",
+	"incubationTime": 1,
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "egg"
+},
+"basic fertilizer": {
+	"value": 500,
+	"description": "Used to automatically maximize plant yields for 24 hours",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "fertilizer",
+	"use": false
+},
+"advanced fertilizer": {
+	"value": 3000,
+	"description": "Used to automatically maximize plant yields for 7 days",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "fertilizer",
+	"use": false
+},
+"special fertilizer": {
+	"value": 10000,
+	"description": "Used to automatically maximize plant yields for 30 days",
+	"purchaseable": true,
+	"sellable": true,
+	"itemType": "fertilizer",
+	"use": false
+},
+"watering can": {
+	"value": 2000,
+	"description": "Used to decrease the time it takes for plants to grow",
+	"purchaseable": true,
+	"sellable": false,
+	"itemType": "permanent",
+	"use": false
+},
+"cryotube": {
+	"value": 1000,
+	"purchaseable": true,
+	"sellable": false,
+	"itemType": "permanent"
+}
+}
