@@ -5,6 +5,8 @@ var fs = require('fs');
 
 var date = new Date();
 
+//var dbLogin			= 	require('./dbLogin.json');
+//var dbConnection 	= 	mysql.createConnection(dbLogin);
 var imoutoFilePath	=	"./Imouto-chan/imouto.json";
 var imoutoCommands 	= 	require("./commands");
 var tenshiCommands 	= 	require("./tenshi");
@@ -17,6 +19,7 @@ var userRoles 		= 	require("./roles.json");
 var hasRights;
 var livingTheDream 	= 	true;
 var LoginToken		= 	require("./token.json");
+var mysql			=	require('mysql');
 personality 		= 	0;
 var suffix 			= 	', desu!';
 imouto				=	{};
@@ -24,6 +27,12 @@ items				= 	require('./items.json');
 var imageFilePath		=	"./Imouto-chan/Images/";
 var nobodyCares		=	"nobodycares.jpg";
 var payingAttention =   false;
+
+/*dbConnection.connect();
+dbConnection.query('SELECT * FROM users', function (error, results, fields) {
+	if (error) throw error;
+	console.log(results);
+});*/
 
 alertSent = false;
 chestLock = null;
@@ -129,7 +138,7 @@ function loadImouto() {
           console.log(imoutoFilePath + " not found; ignoring" + suffix);
         } else {
           imouto = JSON.parse(data);
-	console.log(imouto);
+	//console.log(imouto);
         }
       });
 }
@@ -233,7 +242,7 @@ function checkChest() {
 		alertSent = true;
 	}
 	else if (oldDate < currentDate) {
-		console.log("Chest couldn't summon");
+		//console.log("Chest couldn't summon");
 	}
 	
 }
@@ -286,7 +295,7 @@ function handleCommand(message) {
 	
 	
 	if (command === 'kill' || command === 'investigate' || command === 'protect' || command === 'jail' ||
-		command === 'roleblock' || command === 'track' || command === 'role' 
+		command === 'roleblock' || command === 'track' /*|| command === 'role' */
 		|| message.channel.id === '209076220971712512') {
 		
 		if(mafiaCommands[command] !== undefined) {
@@ -764,7 +773,7 @@ bot.on("ready",	function() {
 
 bot.on('message', function(message) {
 	if(!imouto.isLoaded) {
-		message.channel.send("Imouto is still loading, desu!");
+		console.log("Imouto is still loading, desu!");
 	}
 	else {
 		generateValues(message);
@@ -832,7 +841,7 @@ bot.on('message', function(message) {
 		else if (message.mentions.has(bot.user) && message.author.id !== "211522387471106048" && currentMonth === 9 && currentDate === 13) {
 			message.channel.send("Please... no... I don't want to remember...");
 		}
-		else if (message.mentions.has(bot.user) && message.author.id !== "211522387471106048") {
+		else if (message.mentions.has(bot.user) && message.author.id !== "211522387471106048" && message.author.id !=="209166316035244033") {
 			message.reply("hello" + suffix + " \r\n \r\n" +
 			"You can leave a suggestion by using $suggest <suggestion> in order " +
 			"to leave a suggestion to Pyro3000 if he is offline or at work and " +
@@ -868,7 +877,7 @@ bot.on('message', function(message) {
 		
 		
 		if (message.channel.id == 208498021078401025) {
-			console.log("checking chest");
+			//console.log("checking chest");
 			checkChest();
 		}
 		

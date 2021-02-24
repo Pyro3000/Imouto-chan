@@ -2,6 +2,9 @@ var commands = {};
 var fs = require('fs');
 var commandDate = new Date();
 var imoutoFilePath	=	"./Imouto-chan/imouto.json";
+var mysql = require('mysql');
+var dbLogin			= 	require('./dbLogin.json');
+var dbConnection 	= 	mysql.createConnection(dbLogin);
 
 var urlPath 		= './Imouto-chan/';
 //var imagePath 		= './Imouto-chan/Images/';
@@ -224,7 +227,7 @@ function fierceDeityCheck(message, reward) {
 	}
 }
 
-function phatCheckCheck(message, reward) {
+function phatCheck(message, reward) {
 	if(!global.imouto.minigames.treasure[message.author.id].partyhatCount) {
 		global.imouto.minigames.treasure[message.author.id].partyhatCount = 0;
 	}
@@ -741,6 +744,8 @@ function attemptTackle(message, offPlayer, defPlayer) {
 	var availableTackle = new Date(global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle);
 	
 	if (availableTackle < tackleDate) {
+		console.log("available tackle: " + availableTackle);
+		console.log("tackle date: " + tackleDate);
 		if (damageDealt > 0) {
 			tackleSuccess(message, offPlayer, defPlayer, damageDealt);
 		}
@@ -817,10 +822,92 @@ function generateValues (bot, message, args) {
 	
 }*/
 
-/*commands.test = function(bot, message, args) {
-		message.channel.sendFile(urlPath + '/suggestions.txt');
+commands.test = function(bot, message, args) {
+	/*var mysql = require('mysql');
+	var dbLogin			= 	require('./dbLogin.json');
+	var dbConnection 	= 	mysql.createConnection(dbLogin);
+	
+	dbConnection.connect();
+	
+	dbConnection.query('SELECT username FROM users', function (error, results, fields) {
+	if (error) throw error;
+	message.channel.send("The latest registered user is: " + results[0].username + suffix);
+	
+});*/
 
-}*/
+}
+
+commands.register = function(bot, message, args) {
+	var registrant = message.author.id;
+	var storedUsername = message.author;
+	/*var bcrypt = require('bcrypt');
+	var hash;
+	
+	var queryLine = 'SELECT password FROM users WHERE email = ?'; 
+	
+	dbConnection.query(queryLine, [args[1]], function (error, results, fields) {
+		if (error) throw error;
+		message.channel.send("User hash is: " + results[0].password + suffix);
+		hash = results[0].password;
+	});
+
+	hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
+	bcrypt.compare("secret", hash, function(err, res) {
+    console.log(res);
+	});*/
+	
+	var queryLine = 'SELECT username FROM users WHERE email = ? AND discordID IS NULL'; 
+	if(args[0]) {
+		dbConnection.query(queryLine, [args[0]], function (error, results, fields) {
+		
+		if (error) throw error; {
+			console.log(error);
+		}
+
+		storedUsername = results[0].username;
+		
+		});
+		queryLine = "UPDATE users SET discordID = ? WHERE email = ?";
+		dbConnection.query(queryLine, [message.author.id, args[0]], function (error, results, fields) {
+			if (error) throw error; {
+				console.log(error);
+			}
+			message.channel.send("User registered as: " + storedUsername + suffix);
+	});
+	}
+	else {
+		message.channel.send("Please format command as \"$register \'email\' \"" + suffix);
+		console.log("testing error");
+	}
+	
+	console.log("message: " + message);
+	console.log("author: " + message.author.username);
+	console.log("args: " + args);
+
+}
+
+commands.info = function(bot, message, args) {
+	var registeredName;
+	var registeredEmail;
+
+	
+	var queryLine = 'SELECT * FROM users WHERE discordID = ?'; 
+	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) {
+		
+	if (error) throw error; {
+			console.log(error);
+	}
+	console.log(results);
+	message.channel.send("You are registered at pyroichiban.com as: " + "\n" + "User ID: " + results[0].id + "\n" + "Username: " + results[0].username + "\n" + "Email: " + results[0].email + suffix);
+		
+	});
+
+	
+	console.log("message: " + message);
+	console.log("author: " + message.author.username);
+	console.log("args: " + args);
+
+}
 
 commands.suggest = function(bot, message, args) {
 	var suggestionFile 	= urlPath + '/suggestions.txt';
@@ -869,7 +956,7 @@ commands.say = function(bot, message, args) {
 }
 
 commands.help = function(bot, message, args) {
-	message.channel.send({files: [urlPath + '/imoutoReadme.txt']});
+	message.channel.send("You can visit http://pyroichiban.com/Imouto-chan/how-to-use.html to learn more about me" + suffix);
 }
 
 commands.gao = function(bot, message, args) {
@@ -1519,6 +1606,8 @@ commands.badges = function(bot, message, args) {
 
 commands.pass = function(bot, message, args) {
 	
+	if (message.channel.id === '814148824989171772') {
+	
 	if (!global.imouto.gnomeball) {
 		global.imouto.gnomeball = message.author.id;
 	}
@@ -1554,9 +1643,15 @@ commands.pass = function(bot, message, args) {
 	}
 	
 	saveImouto();
+	}
+	else {
+		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
+	}
 }
 
 commands.tackle = function(bot, message, args) {
+	
+	if (message.channel.id === '814148824989171772') {
 	var placeholderDate = new Date();
 	
 	var offPlayer = message.author;
@@ -1631,6 +1726,10 @@ commands.tackle = function(bot, message, args) {
 			message.reply("you are too tired to tackle right now" + suffix);
 		}
 	}
+	}
+	else {
+		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
+	}
 }
 
 commands.stats = function(bot, message, args) {
@@ -1665,9 +1764,12 @@ commands.stats = function(bot, message, args) {
 	
 	var gardeningValue = global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel;
 	
+	var userHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userHealth;
+	var userMaxHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userMaxHealth;
+	
 	global.imouto.minigames.gnomeball[message.author.id].stats.passingLevel = passingValue;
 	
-	message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nTackling: " +
+	message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + userHealthValue + "/" + userMaxHealthValue + "\r\nTackling: " +
 		tacklingValue + "/" + maxTacklingValue + "\r\nPassing: " + passingValue + "/" + passingValue + "\r\nFortitude: " +
 		fortitudeValue + "/" + maxFortitudeValue + "\r\nGardening: " + gardeningValue);
 
@@ -1754,6 +1856,31 @@ commands.results = function(bot,message,args) {
 	message.channel.send("The current results are:\r\n1. Breeding " + optionOne + " " + percentOne +
 		"%\r\n2. More Race Types " + optionTwo + " " + percentTwo + "%\r\n3. Gardening " + optionThree + " " + percentThree + "%");
 	
+}
+
+commands.role = function(bot,message,args) {
+	
+	//check to see if user has role
+	console.log(args);
+	for (roleName in args) {
+		if (message.guild.roles.cache.find(role => role.name === args[roleName].toLowerCase())) {
+			var roleID = message.guild.roles.cache.find(role => role.name === args[roleName].toLowerCase());
+			
+			if (message.member.roles.cache.find(role => role.name === args[roleName]).toLowerCase()) {
+				message.member.roles.remove(roleID);
+				console.log("had role and removed: " + roleID);
+			}
+			else {
+				message.member.roles.add(roleID);
+				//console.log("did not have role and added " + roleID);
+				//console.log("else line returned because has(roleID): " + message.member.roles.cache.has(roleID));
+				//console.log(".find = " + message.member.roles.cache.find(role => role.name === args[roleName]));
+			}
+		}
+		else {
+			message.channel.send(args[roleName].toLowerCase() + " is not a proper role name" + suffix);
+		}
+	}
 }
 
 commands.wakarimasen = function(bot,message,args) {
