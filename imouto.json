@@ -1887,7 +1887,9 @@
           "maxTacklingLevel": 1,
           "maxPassingLevel": 1,
           "maxFortitudeLevel": 1
-        }
+        },
+        "redCardExpires": 0,
+        "yellowCards": 1
       },
       "459517045319532557": {
         "stats": {
@@ -2012,6 +2014,28 @@
           "fortitudeLevel": 1,
           "fortitudeExp": 0,
           "startHealing": "2021-02-12T02:59:07.357Z",
+          "userHealth": 5,
+          "userMaxHealth": 5,
+          "gardeningLevel": 1,
+          "gardeningExp": 0,
+          "maxTacklingLevel": 1,
+          "maxPassingLevel": 1,
+          "maxFortitudeLevel": 1
+        }
+      },
+      "315529569652310029": {
+        "stats": {
+          "totalTime": "2021-03-04T20:54:57.223Z",
+          "longestTime": 0,
+          "startTime": "2021-03-04T20:54:57.223Z",
+          "nextTackle": "2021-03-04T20:54:57.223Z",
+          "tacklingLevel": 1,
+          "tacklingExp": 0,
+          "passingLevel": 1,
+          "passingExp": 0,
+          "fortitudeLevel": 1,
+          "fortitudeExp": 0,
+          "startHealing": "2021-03-04T20:54:57.223Z",
           "userHealth": 5,
           "userMaxHealth": 5,
           "gardeningLevel": 1,
@@ -6039,6 +6063,15 @@
         "nextGuess": 0,
         "silverKeys": 0,
         "goldKeys": 0
+      },
+      "315529569652310029": {
+        "inventory": [],
+        "currency": 0,
+        "chestsOpened": 0,
+        "lastGuess": 0,
+        "nextGuess": 0,
+        "silverKeys": 0,
+        "goldKeys": 0
       }
     },
     "halloween2016": {
@@ -8912,6 +8945,36 @@
           }
         },
         "cryotubeCount": 0
+      },
+      "315529569652310029": {
+        "hasPet": false,
+        "incubator": null,
+        "incubationDate": null,
+        "hatchDate": null,
+        "pet": {
+          "activePet": {
+            "petAffection": 0,
+            "petBirthday": null,
+            "petName": null,
+            "petType": null,
+            "petStats": {
+              "age": 0,
+              "affection": 0,
+              "gender": null,
+              "stamina": 0,
+              "power": 0,
+              "speed": 0,
+              "intelligence": 0
+            }
+          },
+          "frozenPets": {
+            "frozenNames": []
+          },
+          "daycarePets": {
+            "daycareNames": []
+          }
+        },
+        "cryotubeCount": 0
       }
     },
     "gardening": {
@@ -9530,6 +9593,13 @@
         "fertilizerDate": 0
       },
       "200815334888964096": {
+        "landPlots": 1,
+        "usedPlots": 0,
+        "plantedSeeds": [],
+        "fertilizerUsed": false,
+        "fertilizerDate": 0
+      },
+      "315529569652310029": {
         "landPlots": 1,
         "usedPlots": 0,
         "plantedSeeds": [],
