@@ -1,30 +1,30 @@
 const Discord = require('discord.js');
-//var mysql = require('mysql');
 const bot = new Discord.Client({autoReconnect:true});
 var fs = require('fs');
 
 var date = new Date();
 
-//var dbLogin			= 	require('./dbLogin.json');
-//var dbConnection 	= 	mysql.createConnection(dbLogin);
-var imoutoFilePath	=	"./Imouto-chan/imouto.json";
-var imoutoCommands 	= 	require("./commands");
-var tenshiCommands 	= 	require("./tenshi");
-var nekoCommands 	= 	require("./neko");
-var mafiaCommands	=	require("./mafia");
-var auctionCommands =	require("./auction");
-var petCommands		=	require("./pet");
-var commandPrefix 	= 	"$";
-var userRoles 		= 	require("./roles.json");
+var mysql 			= 	require('mysql');
+var dbLogin			= 	require('./dbLogin.json');
+var dbConnection 	= 	mysql.createConnection(dbLogin);
+
+var imoutoFilePath		=	"./Imouto2_0/imouto.json";
+var imoutoCommands 		= 	require("./commands");
+var tenshiCommands 		= 	require("./tenshi");
+var nekoCommands 		= 	require("./neko");
+var mafiaCommands		=	require("./mafia");
+var auctionCommands 		=	require("./auction");
+var petCommands			=	require("./pet");
+var commandPrefix 		= 	"$";
+var userRoles 			= 	require("./roles.json");
 var hasRights;
-var livingTheDream 	= 	true;
-var LoginToken		= 	require("./token.json");
-var mysql			=	require('mysql');
+var livingTheDream 		= 	true;
+var LoginToken			= 	require("./token.json");
 personality 		= 	0;
 var suffix 			= 	', desu!';
 imouto				=	{};
 items				= 	require('./items.json');
-var imageFilePath		=	"./Imouto-chan/Images/";
+var imageFilePath		=	"./Imouto2_0/Images/";
 var nobodyCares		=	"nobodycares.jpg";
 var payingAttention =   false;
 
@@ -33,15 +33,6 @@ dbConnection.query('SELECT * FROM users', function (error, results, fields) {
 	if (error) throw error;
 	console.log(results);
 });*/
-
-alertSent = false;
-chestLock = null;
-chestSummoned = false;
-coinAmount = 0;
-hintsRemaining = 4;
-chestType = "bronze";
-rouletteGuess = 0;
-rouletteGuesses = 0;
 
 zombieKilled		=	 true;
 zombieActive 		=	 false;
@@ -62,23 +53,6 @@ collectibleMaskList = ["Great Fairy's Mask","Kafei's Mask","Bremen Mask","Kamaro
 	"Couple's Mask", "Giant's Mask");
 	imouto.goldLoot.push("Triforce of Power","Triforce of Wisdom","Triforce of Courage","The Boss' Patriot","The Boss' Sneaking Suit","White partyhat","Blue partyhat","Red partyhat","Green partyhat","Yellow partyhat","Purple partyhat");
 	*/
-var mafiaPlayer1;
-var mafiaPlayer2;
-
-players = [];
-villagers = [];
-mafiaScum = [];
-registeredPlayers = ["players:"];
-
-roleblockerExists = false;
-jailerExists = false;
-detectiveExists = false;
-doctorExists = false;
-trackerExists = false;
-bulletproofExists = false;
-
-gameStarted = false;
-dayPhase = 0;
 
 eventParticipants = [];
 
@@ -121,9 +95,12 @@ function automaticTackle(message, offPlayer, defPlayer) {
 	global.imouto.gnomeball = offPlayer.id;
 
 }
-
-function checkPriv(sender) {
-	if (userRoles.hasOwnProperty(sender)) {
+//test
+function checkPriv(message) {
+	//NEEDS TO CHECK USER LEVEL IN DATABASE
+	console.log(message);
+	//if (userRoles.hasOwnProperty(sender)) {
+	if (message.member.roles.cache.some(r => r.name === "ADMINISTRATOR")) {
 		hasRights = true;
 	} else {
 		hasRights = false;
@@ -131,6 +108,9 @@ function checkPriv(sender) {
 }
 
 function loadImouto() {
+	//NEEDS TO PULL DATA FROM DATABASE INSTEAD OF JSON
+	//POTENTIALLY KEEP FOR SMALL JSON
+	//MAY NEED REWORKED TO PASS VARIABLE NAMES
   fs.readFile(
       imoutoFilePath,
       function(err, data) {
@@ -144,6 +124,7 @@ function loadImouto() {
 }
 
 function saveImouto() {
+	//WILL WRITE DATA TO DATABASE
 	//console.log("in saveWallet: " + wallet["money"]);
   fs.writeFileSync(
       imoutoFilePath,
@@ -168,84 +149,6 @@ function saveImouto() {
 		global.messagesCount = 0;
 	}
 }*/
-
-function summonBronzeChest() {
-	chestSummoned = true;
-	chestLock = Math.floor(Math.random()*100);
-	coinAmount = Math.ceil(Math.random()*150);
-	hintsRemaining = 4;
-	chestType = "bronze";
-	
-	bot.channels.cache.get("208498021078401025").send("A bronze chest has appeared" + suffix + "\r\n \r\n" +
-		"use $hint or $unlock to figure out the lock number" + suffix);
-}
-
-function summonSilverChest() {
-	chestSummoned = true;
-	chestLock = Math.floor(Math.random()*100);
-	coinAmount = Math.ceil(Math.random()*150) + 150;
-	hintsRemaining = 3;
-	chestType = "silver";
-
-	bot.channels.cache.get("208498021078401025").send("A **silver chest** has appeared" + suffix + "\r\n \r\n" +
-		"use $hint or $unlock to figure out the lock number" + suffix);
-}
-
-function summonGoldChest() {
-	chestSummoned = true;
-	chestLock = Math.floor(Math.random()*100);
-	coinAmount = Math.ceil(Math.random()*150) + 300;
-	hintsRemaining = 2;
-	chestType = "gold";
-
-	bot.channels.cache.get("208498021078401025").send("A __**gold chest**__ has appeared" + suffix + "\r\n \r\n" +
-		"use $hint or $unlock to figure out the lock number" + suffix);
-}
-
-function summonRouletteChest() {
-	chestSummoned = true;
-	chestLock = Math.floor(Math.random()*100);
-	coinAmount = Math.ceil(Math.random()*150) + 500;
-	hintsRemaining = 0;
-	chestType = "roulette";
-
-	bot.channels.cache.get("208498021078401025").send("A __**roulette chest**__ has appeared" + suffix + "\r\n \r\n" +
-		"use $unlock to try and open the chest" + suffix);
-}
-
-function summonChest() {
-	/*chestSelection = Math.ceil(Math.random()*100);
-	
-	if (chestSelection >= 65) {
-		summonSilverChest();
-	}
-	else if (chestSelection <= 5) {
-		summonRouletteChest();
-	}
-	else if (chestSelection <= 15) {
-		summonGoldChest();
-	}
-	else {
-		summonBronzeChest();
-	}*/
-}
-
-
-function checkChest() {
-	var currentDate = new Date();
-	var oldDate = new Date(imouto.minigames.treasure.chestProperties.nextChest);
-	
-	
-	if (oldDate <= currentDate && alertSent === false) {
-		console.log("Chest should summon");
-		summonChest();
-		alertSent = true;
-	}
-	else if (oldDate < currentDate) {
-		//console.log("Chest couldn't summon");
-	}
-	
-}
 
 function checkFertilizer(message) {
 	var currentDate = new Date();
@@ -291,22 +194,11 @@ function handleCommand(message) {
 	var messageMonth = commandDate.getMonth();
 	var messageDate = commandDate.getDate();
 	
-	console.log(command + " command was used by " + sender.username + " with '"+content+"'" + suffix);
+	console.log(command + " command was used by " + sender.username + " with '"+ content +"'" + suffix);
 	
 	
-	if (command === 'kill' || command === 'investigate' || command === 'protect' || command === 'jail' ||
-		command === 'roleblock' || command === 'track' /*|| command === 'role' */
-		|| message.channel.id === '209076220971712512') {
-		
-		if(mafiaCommands[command] !== undefined) {
-			// Run the command
-			mafiaCommands[command](bot, message, args);
-		} else {
-			// The command doesn't exist!
-			message.reply("Invalid Command");
-		}	
-	}
-	else if (message.channel.id === '238089575292076032') {
+	if (message.channel.id === '238089575292076032') {
+		//SEE IF BETTER WAY TO  WORK ALTERNATE CHANNELS
 		if(auctionCommands[command] !== undefined) {
 			auctionCommands[command](bot, message, args);
 		} else {
@@ -321,7 +213,7 @@ function handleCommand(message) {
 		}
 	}
 	else if (command === 'awaken') {
-		checkPriv(sender); //enables Pyro3000, Jaron, and Topsummoner to disable/enable bot
+		checkPriv(message); //enables Pyro3000, Jaron, and Topsummoner to disable/enable bot
 		if (hasRights = true) {
 			livingTheDream = true;
 			message.channel.send("*stretches and gives a warm smile*");
@@ -329,17 +221,18 @@ function handleCommand(message) {
 		} else { console.log("check failed"); }
 	}
 	else if (command === 'sleep') {
-		checkPriv(sender);
+		checkPriv(message);
 		if (hasRights = true) {
 			livingTheDream = false;
 			message.channel.send("Imouto-chan will take a quiet rest now, desu.");
 			console.log("Imouto-chan has been disabled" + suffix);
 		} else { console.log("check failed"); }
 	}
-	else if(messageMonth === 9 && messageDate === 13 && command !== 'hint' && command !== 'unlock' && command !== 'stopzombie' && command !== 'inventory' && command !== 'wallet') {
+	else if(messageMonth === 9 && messageDate === 13 && command !== 'stopzombie' && command !== 'inventory' && command !== 'wallet') {
 		imoutoCommands['traumatized'](bot, message, args);
 	}
 	else if (!isNaN(command) && command > 0) {
+		//UPDATE AND TEST
 		var stolenGoods = parseInt(command);
 		console.log(command);
 		var diceRoll = Math.floor(Math.random() * 99);
@@ -356,8 +249,10 @@ function handleCommand(message) {
 		}
 	}
 	else if (this.personality === 0 && livingTheDream === true) {
+		console.log('personality and dream meet requirements');
 		if(imoutoCommands[command] !== undefined) {
 			// Run the command
+			console.log('command should run normally');
 			imoutoCommands[command](bot, message, args);
 		} else {
 			// The command doesn't exist!
@@ -370,6 +265,8 @@ function handleCommand(message) {
 			}
 		}
 	}
+
+	//DETERMINE IF ALT PERSONAS STILL NECESSARY
 	else if (this.personality === 1 && livingTheDream === true) {
 		if(tenshiCommands[command] !== undefined) {
 			// Run the command
@@ -397,11 +294,14 @@ function handleCommand(message) {
 			message.reply(message, "Invalid Command");
 		}	
 	}
+	else{
+		console.log('no requirements being met');
+	}
 }
 
 function healUser(message) {
-	
-	var currentTime = new Date();
+	//UPDATE TO WORK WITH DATABASE
+	/*var currentTime = new Date();
 	var healingTime = new Date(imouto.minigames.gnomeball[message.author.id].stats.startHealing);
 	var userHP = Number(imouto.minigames.gnomeball[message.author.id].stats.userHealth);
 	var userMaxHP = Number(imouto.minigames.gnomeball[message.author.id].stats.userMaxHealth);
@@ -428,141 +328,29 @@ function healUser(message) {
 	else {
 		console.log("HP comparison not met for " + message.author.username);
 		console.log("userHP: " + userHP + " userMaxHP " + userMaxHP);
-	}
+	}*/
 }
 
 function generateValues(message) {
-	var placeholderDate = new Date();
-	
-	if (!imouto.minigames) {
-		imouto.minigames = {};
-	}
-	
-	if (!imouto.minigames.gnomeball) {
-		imouto.minigames.gnomeball = {};
-	}
-	
-	if (!imouto.minigames.treasure) {
-		imouto.minigames.treasure = {};
-	}
-	if (!imouto.minigames.treasure.goldLoot) {
-		imouto.minigames.treasure.goldLoost = [];
-	}
-	if (!imouto.minigames.treasure.loot) {
-		imouto.minigames.treasure.loot = [];
-	}
-	
-	if (!imouto.minigames.gnomeball[message.author.id]) {
-		imouto.minigames.gnomeball[message.author.id] = {};
-	}
-	if (!imouto.minigames.gnomeball[message.author.id].stats) {
-		imouto.minigames.gnomeball[message.author.id].stats = {totalTime: placeholderDate, longestTime: 0,
-			startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-		fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5, gardeningLevel: 1, gardeningExp: 0}
-	}
-	if (!imouto.minigames.gnomeball[message.author.id].stats.maxTackling) {
-		imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxPassingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel = 1;
-	}
-	if(!imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel) {
-		imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.gardeningExp = 0;
-	}
-	
-	if(!imouto.minigames.gnomeball[message.author.id].stats.gardeningExp) {
-		imouto.minigames.gnomeball[message.author.id].stats.gardeningExp = 0;
-	}
-	
-	if (!imouto.minigames.treasure[message.author.id]) {
-		imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	if(!imouto.minigames.treasure.chestProperties) {
-		imouto.minigames.treasure.chestProperties = {};
-	}
-	if(!imouto.minigames.treasure.chestProperties.nextChest) {
-		imouto.minigames.treasure.chestProperties.nextChest = 0;
-	}
-	if(!imouto.loot) {
-		imouto.loot = [];
-	}
-	if(!imouto.goldLoot) {
-		imouto.goldLoot = [];
-	}
-	if(!imouto.generatedLoot) {
-		imouto.loot.push("Great Fairy's Mask","Kafei's Mask","Bremen Mask","Kamaro's Mask","Blast Mask","Bunny Hood","Keaton Mask","Postman's Hat","Mask of Truth","Mask of Scents","Don Gero's Mask",
-			"Romani's Mask","Garo's Mask","Captain's Hat","Stone Mask","Troupe Leader's Mask","All-Night Mask","Gibdo Mask",
-			"Couple's Mask", "Giant's Mask");
-		imouto.goldLoot.push("Triforce of Power","Triforce of Wisdom","Triforce of Courage","The Boss' Patriot","The Boss' Sneaking Suit","White partyhat","Blue partyhat","Red partyhat","Green partyhat","Yellow partyhat","Purple partyhat");
-		imouto.generatedLoot = true;
-		console.log("loot generated");
-	}
-	if(!imouto.minigames.pets) {
-		imouto.minigames.pets = {"activePets":[], "incubatingEggs": []};
-	}
-	if(!imouto.minigames.pets[message.author.id]) {
-		imouto.minigames.pets[message.author.id] = {"hasPet": false, "incubator": null, "incubationDate": null, "hatchDate": null, "pet": {"activePet": {"petAffection": 0, "petBirthday": null,"petName": null,"petType":null,"petStats":{"age":0, "affection":0,"gender":null,"stamina":0,"power":0,"speed":0,"intelligence":0}}}};
-	}
-	
-	if(!imouto.minigames.pets[message.author.id].pet) {
-		imouto.minigames.pets[message.author.id].pet = {};
-	}
-	
-	if(!imouto.minigames.pets[message.author.id].pet.frozenPets) {
-		imouto.minigames.pets[message.author.id].pet.frozenPets = {};
-	}
+	// -DETERMINE WHAT MUST GO IN NEW DATABASE AND DELETE ENTIRETY OR MAJORITY OF FUNCTION
 
-	if(!imouto.minigames.pets[message.author.id].pet.frozenPets.frozenNames) {
-		imouto.minigames.pets[message.author.id].pet.frozenPets.frozenNames = [];
-	}
-	
-	if(!imouto.minigames.pets[message.author.id].pet.daycarePets) {
-		imouto.minigames.pets[message.author.id].pet.daycarePets = {};
-	}
 
-	if(!imouto.minigames.pets[message.author.id].pet.daycarePets.daycareNames) {
-		imouto.minigames.pets[message.author.id].pet.daycarePets.daycareNames = [];
-	}
-	
-	if(!imouto.minigames.pets[message.author.id].cryotubeCount) {
-		imouto.minigames.pets[message.author.id].cryotubeCount = 0;
-	}
-	
-	if(!imouto.minigames.gardening) {
-		imouto.minigames.gardening = {};
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id]) {
-		imouto.minigames.gardening[message.author.id] = {};
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id].landPlots) {
-		imouto.minigames.gardening[message.author.id].landPlots = 1;
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id].usedPlots) {
-		imouto.minigames.gardening[message.author.id].usedPlots = 0;
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id]) {
-		imouto.minigames.gardening[message.author.id] = {};
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id].plantedSeeds) {
-		imouto.minigames.gardening[message.author.id].plantedSeeds = [];
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id].fertilizerUsed) {
-		imouto.minigames.gardening[message.author.id].fertilizerUsed = false;
-	}
-	
-	if(!imouto.minigames.gardening[message.author.id].fertilizerDate) {
-		imouto.minigames.gardening[message.author.id].fertilizerDate = 0;
-	}
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`, (error, results) => {
+		if(error) {
+			console.log(error);
+		}
+		if(!results.length) {
+			dbConnection.query(`INSERT INTO stats (discordID) VALUES ('${message.author.id}')`);
+			console.log('New user has been registered into stats as ' + message.author.id);
+		}
+		else{
+			console.log('user already registered in database');
+		}
+	});
 }
 
 function gardeningLevelUp(message, plantExp) {
+	//UPDATE TO WORK WITH DATABASE
 	var skillExp = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningExp) + plantExp;
 	var originalLevel = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel);
 	var skillLevel = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel);
@@ -603,6 +391,7 @@ function gardeningLevelUp(message, plantExp) {
 }
 
 function generatePlant(message, currentSeed) {
+	//REWRITE AND SIMPLIFY
 	var plantObject = {"potato seed": "potato","corn seed": "corn"};
 	//[seedName, seedTypes[seedName].maxProduce, seedTypes[seedName].expValue, growingTime]
 	var plantProduce = items[currentSeed[0]].product;
@@ -632,6 +421,7 @@ function generatePlant(message, currentSeed) {
 }
 
 function growSeed(message) {
+	//REWORK TO WORK WITH DATABASE AND WEBSITE
 	for(seed in imouto.minigames.gardening[message.author.id].plantedSeeds) {
 		var plantedSeeds = imouto.minigames.gardening[message.author.id].plantedSeeds;
 		var currentSeed = plantedSeeds[seed];
@@ -646,7 +436,7 @@ function growSeed(message) {
 }
 
 function generatePet(message) {
-	
+	//POTENTIAL FINE?
 	//"petBirthday": null,"petName": null,"petType":null,"petStats":{"age":0, "affection":0,"gender":null,"stamina":0,"power":0,"speed":0,"intelligence":0}}}};
 	var eggHatched = imouto.minigames.pets[message.author.id].incubator;
 	var petSpecies = {"alluring egg":"succubus","slimey egg":"slime","scaley egg":"lamia","stone egg":"golem","metal egg":"dullahan","rainbow egg":"unicorn"}
@@ -658,7 +448,7 @@ function generatePet(message) {
 		"unicorn": {"stats": {"age":0, "affection":0,"gender":"male","stamina":2,"power":2,"speed":3,"intelligence":3}}}
 
 	message.reply("your " +  eggHatched + " has hatched into a " + petSpecies[eggHatched] + suffix);
-	
+	//SECTION NEEDS REWORKED FOR DATABASE
 	imouto.minigames.pets[message.author.id].pet.activePet.petBirthday = new Date();
 	imouto.minigames.pets[message.author.id].pet.activePet.petType = petSpecies[eggHatched];
 	imouto.minigames.pets[message.author.id].pet.activePet.petStats.gender = newPetStats[petSpecies[eggHatched]].stats.gender;
@@ -676,6 +466,7 @@ function generatePet(message) {
 }
 
 function hatchPet(message) {
+	//REVIEW
 	var hatchDate = new Date(imouto.minigames.pets[message.author.id].hatchDate);
 	var hatchAttemptDate = new Date();
 	
@@ -688,7 +479,7 @@ function hatchPet(message) {
 }
 
 function fieldRace(bot, message, eventParticipants) {
-	
+	//POTENTIALL DROPPED
 	/*bot.channels.cache.get("238089685782626304").send("The field race has begun" + suffix);
 	imouto.minigames.pets.eventActive = true;
 	
@@ -741,6 +532,7 @@ function mountainClimb(bot, message, eventParticipants) {
 }
 
 function chooseEvent(bot, message, eventParticipants) {
+	//REVIEW
 	eventParticipants = [];
 	//[userID, power, speed, intelligence, stamina]
 	
@@ -788,8 +580,6 @@ bot.on('message', function(message) {
 		
 		determineSuffix();
 		
-		console.log(dayPhase);
-		
 		/*switch(message.author.id) {
 			case '210613844513390592' : trollZnath(message);
 				console.log('Znath has made ' + messagesCount +
@@ -800,44 +590,11 @@ bot.on('message', function(message) {
 		}*/
 
 		
-		switch(dayPhase) {
-			case 1 : if (roleblockerExists == false) { dayPhase++; } break;
-			case 2 : if (jailerExists == false) { dayPhase++; } break;
-			case 3 : if (detectiveExists == false) {dayPhase++;} break;
-			case 4 : if (doctorExists == false) {dayPhase++;} break;
-			case 6 : if (trackerExists == false) { dayPhase++; } break;
-			case 7 : dayPhase = 0;//mafiaCommands.concludeDay(bot);
-			default : break;
-		}
-		
-		if (message.channel.id == 209076220971712512 && gameStarted == true) {
-			if(dayPhase > 0 && message.author.id != '211522387471106048') {
-				message.delete(message);
-			}
-			else if (mafiaScum.length >= villagers.length) {
-				message.channel.send("Mafia Wins! Congratulations " + mafiaScum.join(" "));
-				message.channel.send("Sorry " + villagers.join(" "));
-				mafiaCommands.restart(bot, message);
-				gameStarted = false;
-			}
-			
-			else if (mafiaScum.length == 0) {
-				message.channel.send ("Villagers win!");
-				mafiaCommands.restart(bot, message);
-				gameStarted = false;
-			}
-			else if(message.content.startsWith(commandPrefix)){
-				handleCommand(message);
-			}
-			else {
-			}
-		}
-		//NEW COMMAND GOES HERE
-		
-		else if(message.content.startsWith(commandPrefix) && message.author.id !== "211522387471106048") {
+		if(message.content.startsWith(commandPrefix) && message.author.id !== "211522387471106048") {
+			console.log('handleCommand entered: ' + message);
 			handleCommand(message);
+			
 		}
-		
 		else if (message.mentions.has(bot.user) && message.author.id !== "211522387471106048" && currentMonth === 9 && currentDate === 13) {
 			message.channel.send("Please... no... I don't want to remember...");
 		}
@@ -874,13 +631,7 @@ bot.on('message', function(message) {
 				zombieKilled = false;
 			}
 		}
-		
-		
-		if (message.channel.id == 208498021078401025) {
-			//console.log("checking chest");
-			checkChest();
-		}
-		
+		//REVIEW ALL BELOW CODE		
 		console.log("Month: " +currentMonth);
 		console.log("Date: " + currentDate);
 		
@@ -894,9 +645,9 @@ bot.on('message', function(message) {
 		
 		healUser(message);
 		
-		if(imouto.minigames.pets[message.author.id].hasPet === false && imouto.minigames.pets[message.author.id].incubator !== null) {
+		/*if(imouto.minigames.pets[message.author.id].hasPet === false && imouto.minigames.pets[message.author.id].incubator !== null) {
 			hatchPet(message);
-		}
+		}*/ //COMMENTED TO MAKE IMOUTO RUN
 		
 		growSeed(message);
 		checkFertilizer(message);
@@ -913,16 +664,3 @@ loadImouto();
 bot.login(LoginToken.token);
 console.log("Imouto-chan is online and running on " + process.cwd() + suffix);
 
-
-
-
-bot.on('ready', () => {
-
-
-
-
-});
-
-
-//console.log(process.cwd());
-//bot.join('208498021078401026');//for joining voice channel

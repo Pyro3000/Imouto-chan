@@ -1,12 +1,12 @@
 var commands = {};
 var fs = require('fs');
 var commandDate = new Date();
-var imoutoFilePath	=	"./Imouto-chan/imouto.json";
+var imoutoFilePath	=	"./Imouto2_0/imouto.json";
 var mysql = require('mysql');
 var dbLogin			= 	require('./dbLogin.json');
 var dbConnection 	= 	mysql.createConnection(dbLogin);
 
-var urlPath 		= './Imouto-chan/';
+var urlPath 		= './Imouto2_0/';
 //var imagePath 		= './Imouto-chan/Images/';
 var suffix = ', desu!';
 
@@ -617,7 +617,7 @@ function getNameForUser(user, guild) {
 function automaticTackle(message, offPlayer, defPlayer) {
 	message.reply("you have stolen the gnomeball" + suffix);
 	global.imouto.gnomeball = offPlayer.id;
-
+	//CHANGE TO HAVE DATABASE VALUE FOR offPlayer AND defPlayer SWITCH VALUES
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
@@ -769,72 +769,27 @@ function attemptTackle(message, offPlayer, defPlayer) {
 }
 
 function generateValues (bot, message, args) {
-	var placeholderDate = new Date();
-	
-	if (!global.imouto.minigames.gnomeball) {
-		global.imouto.minigames.gnomeball = {};
-	}
-	if (!global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id]) {
-		global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id] = {};
-	}
-	if (!global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id].stats) {
-		global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id].stats = {totalTime: placeholderDate, longestTime: 0,
-			startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-		fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-	}
+
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`, (error, results) => {
+		if(error) {
+			console.log(error);
+		}
+		if(!results.length) {
+			dbConnection.query(`INSERT INTO stats (discordID) VALUES ('${message.author.id}')`);
+			console.log('New user has been registered into stats as ' + message.author.id);
+		}
+		else{
+			console.log('user already registered in database');
+		}
+	});
 }
 
-/*commands.fix = function(bot, message, args) {
-	
-//	USE THIS TO FIX BROKEN USERS IN TREASURE MINIGAME.
-//  DELETE USER'S LASTGUESS AND NEXTGUESS FROM JSON FILE
-
-		if (!global.imouto.minigames.treasure[message.author.id].lastGuess) {
-		global.imouto.minigames.treasure[message.author.id].lastGuess = 0;
-				
-		}
-		
-		if (!global.imouto.minigames.treasure[message.author.id].nextGuess) {
-			global.imouto.minigames.treasure[message.author.id].nextGuess = 0;
-		}
-		
-	var guessTime = new Date(global.imouto.minigames.treasure[message.author.id].lastGuess);
-	var userNextGuess = new Date();
-			
-	userNextGuess.setMinutes(guessTime.getMinutes() + 15);
-			
-	message.reply("You have guessed incorrectly.  Try again in 15 minutes" + suffix);
-		
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id];
-	}
-		
-	
-		
-	if (!global.imouto.minigames.treasure[message.author.id].nextGuess) {
-		global.imouto.minigames.treasure[message.author.id].nextGuess = 0;
-	}
-				
-	global.imouto.minigames.treasure[message.author.id].nextGuess = userNextGuess;
-	global.imouto.minigames.treasure[message.author.id].lastGuess = guessTime;
-	
-	saveImouto();
-	
-}*/
+commands.fix = function(bot, message, args) {
+//COMMAND RESERVED FOR DATA ERRORS	
+}
 
 commands.test = function(bot, message, args) {
-	/*var mysql = require('mysql');
-	var dbLogin			= 	require('./dbLogin.json');
-	var dbConnection 	= 	mysql.createConnection(dbLogin);
-	
-	dbConnection.connect();
-	
-	dbConnection.query('SELECT username FROM users', function (error, results, fields) {
-	if (error) throw error;
-	message.channel.send("The latest registered user is: " + results[0].username + suffix);
-	
-});*/
-
+//COMMAND RESERVED FOR FUNCTION TESTS
 }
 
 commands.register = function(bot, message, args) {
@@ -987,7 +942,7 @@ commands.ginandjuice = function(bot, message, args) {
 }
 
 commands.mf = function(bot, message, args) {
-	message.channel.send({file: ["./Imouto-chan/Images/lastorderrage.gif"]});
+	message.channel.send({files: ["./Imouto-chan/Images/lastorderrage.gif"]});
 }
 
 commands.ring = function(bot, message, args) {
@@ -1104,7 +1059,7 @@ commands.teehee = function(bot, message, args) {
 commands.smug = function(bot, message, args) {
 	const commandName = 'smug';
 	var filePath	  = "Smug/";
-	const fileList 	  = ['smug0.jpg','smug1.jpg','smug2.jpg','smug3.jpg','smug4.jpg','smug5.png'];
+	const fileList 	  = ['smug0.jpg','smug1.jpg','smug2.jpg','smug3.jpg','smug4.jpg','smug5.png', 'smug6.jpg', 'smug7.jpg'];
 	
 	getImage(bot, message, args, fileList, filePath, commandName);
 }
@@ -1650,82 +1605,111 @@ commands.pass = function(bot, message, args) {
 }
 
 commands.tackle = function(bot, message, args) {
-	
 	if (message.channel.id === '814148824989171772') {
-	var placeholderDate = new Date();
-	
-	var offPlayer = message.author;
-	var defPlayer = message.mentions.users.array()[0];
-	
-	var attemptedTackleDate = new Date();
-	
-	
-	if (!global.imouto.minigames.gnomeball[message.author.id].redCardExpires) {
-		global.imouto.minigames.gnomeball[message.author.id].redCardExpires = 0;
-	}
-	
-	var banDate = new Date(global.imouto.minigames.gnomeball[message.author.id].redCardExpires);
-	
-	if(banDate > attemptedTackleDate) {
-		message.reply("you are currently banned from gnomeball" + suffix);
-	}
-	else if (message.mentions.users.size === 0) {
-		message.channel.send("Use @user to tackle a player" + suffix);
-	}
-	else {
-		
-		if (!imouto.minigames.gnomeball[defPlayer.id]) {
-		imouto.minigames.gnomeball[defPlayer.id] = {};
-		}
-		
-		if (!imouto.minigames.gnomeball[defPlayer.id].stats) {
-			imouto.minigames.gnomeball[defPlayer.id].stats = {totalTime: placeholderDate, longestTime: 0,
-				startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-			fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-		}
-		
-		if(Number(imouto.minigames.gnomeball[offPlayer.id].stats.userHealth) > 0) {
-		
-			if (defPlayer.id === message.author.id) {
-				message.channel.send("You cannot tackle yourself" + suffix);
-			}
-			else if (global.imouto.gnomeball === defPlayer.id) {
-				if (defPlayer.status !== "offline") {
-					attemptTackle(message, offPlayer, defPlayer);
-				}
-				else {
-					automaticTackle(message, offPlayer, defPlayer);
-				}
-				
-				saveImouto();
-			}
-			else {
-				
-				if(!global.imouto.minigames.gnomeball[message.author.id].yellowCards) {
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-				}
-				
-				var yellowCards = global.imouto.minigames.gnomeball[message.author.id].yellowCards;
-				message.channel.send(getNameForUser(defPlayer, message.guild) + " doesn't have the gnomeball.\r\n" +
-					"The referee gives you a yellow card" + suffix);
-				yellowCards++;
-				global.imouto.minigames.gnomeball[message.author.id].yellowCards = yellowCards;
-				
-				if(yellowCards >= 3) {
-					var redCardDate = new Date();
-					message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-					redCardDate.setDate(redCardDate.getDate() + 1);
-					global.imouto.minigames.gnomeball[message.author.id].redCardExpires = redCardDate;
-				}
-				
-				saveImouto();
-			}
+		if(message.mentions.users.size === 0) {
+			message.reply("use $tackle @user to tackle" + suffix);
 		}
 		else {
-			message.reply("you are too tired to tackle right now" + suffix);
-		}
-	}
+			var placeholderDate = new Date();
+	
+			var offPlayer = {
+								discordID: message.author.id,
+								userHealth: 0,
+								tacklingLevel: 0,
+								tacklingExp: 0,
+								yellowCards: 0,
+								unbanDate: null
+			};
+						
+			var defPlayer = {
+								discordID: message.mentions.users.array()[0],
+								userHealth: 0,
+								fortitudeLevel: 0,
+								fortitudeExp: 0
+			};
+	
+			var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
+			var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
+	
+			dbConnection.query(queryLine, [message.author.id], function (error, results, fields) { //query for Offensive Player
+
+				if (error) throw error; {
+					console.log(error);
+				}
+				offPlayer = {
+						discordID: message.author.id,
+						userHealth = results[0].userHealth,
+						tacklingLevel: results[0].tacklingLevel,
+						tacklingExp: results[0].tacklingExp,
+						yellowCards: results[0].yellowCards,
+						unbanDate: results[0].unbanDate
+				};
+				console.log("offPlayer: " + offPlayer.userHealth);
+
+				dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
+
+					if(error) throw error; {
+						console.log(error)
+					}
+					defPlayer = {
+							discordID: message.mentions.users.array()[0].id,
+							userHealth: results[0].userHealth,
+							fortitudeLevel: results[0].fortitudeLevel,
+							fortitudeExp: results[0].fortitudeExp
+					};
+
+					var attemptedTackleDate = new Date();
+					var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object
+	
+					if(banDate > attemptedTackleDate) {
+						message.reply("you are currently banned from gnomeball" + suffix);
+					}
+					else {
+
+					//if(Number(imouto.minigames.gnomeball[offPlayer.id].stats.userHealth) > 0) { //EDIT TO CHECK FROM PLAYER OBJECT MADE FROM DATABASE
+						if (Number(offPlayer.userHealth) > 0) {
+							if (defPlayer.id === message.author.id) {
+								message.channel.send("You cannot tackle yourself" + suffix);
+							}
+							else if (global.imouto.gnomeball === defPlayer.discordID) { //takes defending player ID from defending player object
+								if (message.mentionsusers.array()[0].status !== "offline") {
+									attemptTackle(message, offPlayer, defPlayer);
+								}
+							else {
+								automaticTackle(message, offPlayer, defPlayer);
+							}
+						}
+						else {
+							//var yellowCards = global.imouto.minigames.gnomeball[message.author.id].yellowCards; OLD CODE
+							message.channel.send(getNameForUser(defPlayer, message.guild) + " doesn't have the gnomeball.\r\n" +
+							"The referee gives you a yellow card" + suffix);
+							offPlayer.yellowCards++; //maybe?
+							//yellowCards++;
+							//global.imouto.minigames.gnomeball[message.author.id].yellowCards = yellowCards;
+							if (offPlayer.yellowCards >= 2) {
+								dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
+									if(error) throw error; {
+										console.log(error);
+									}
+								});
+								message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
+							}
+							else {
+								dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
+									if(error) throw error; {
+									console.log(error);
+									}
+								});
+							}				
+						}
+					}
+					else {
+						message.reply("you are too tired to tackle right now" + suffix)
+						message.reply("You have " + offPlayer.userHealth + "HP" + suffix);
+					}
+				}
+			});
+		});
 	}
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
@@ -1733,46 +1717,28 @@ commands.tackle = function(bot, message, args) {
 }
 
 commands.stats = function(bot, message, args) {
-	var placeholderDate = new Date();
+	var userHealthValue;
+	var userMaxHealth;
+	var tacklingValue;
 	
-	if (!global.imouto.minigames.gnomeball[message.author.id]) {
-		global.imouto.minigames.gnomeball[message.author.id] = {};
+	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
+	dbConnection.query(queryLine, [args[0]], function (error, results, fields) {
+	
+	if (error) throw error; {
+		console.log(error);
 	}
-		
-	if (!global.imouto.minigames.gnomeball[message.author.id].stats) {
-		global.imouto.minigames.gnomeball[message.author.id].stats = {totalTime: placeholderDate, longestTime: 0,
-			startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-		fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-	}
-	
-	if (!imouto.minigames.gnomeball[message.author.id].stats.maxTackling) {
-		imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxPassingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel = 1;
-	}
-	
-	var tacklingValue = global.imouto.minigames.gnomeball[message.author.id].stats.tacklingLevel;
-	var fortitudeValue = global.imouto.minigames.gnomeball[message.author.id].stats.fortitudeLevel;
-	var passingValue = (tacklingValue+fortitudeValue)/2;
-	
-	global.imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel = tacklingValue;
-	global.imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel = fortitudeValue;
-	
-	var maxTacklingValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel;
-	var maxFortitudeValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel;
-	var maxPassingValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxPassingLevel;
-	
-	var gardeningValue = global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel;
-	
-	var userHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userHealth;
-	var userMaxHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userMaxHealth;
-	
-	global.imouto.minigames.gnomeball[message.author.id].stats.passingLevel = passingValue;
-	
-	message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + userHealthValue + "/" + userMaxHealthValue + "\r\nTackling: " +
-		tacklingValue + "/" + maxTacklingValue + "\r\nPassing: " + passingValue + "/" + passingValue + "\r\nFortitude: " +
-		fortitudeValue + "/" + maxFortitudeValue + "\r\nGardening: " + gardeningValue);
 
+	});
+	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) {
+		if (error) throw error; {
+			console.log(error);
+		}
+	
+		message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + results[0].userHealth + "/" + results[0].userMaxHealth + "\r\nTackling: " +
+			results[0].tacklingLevel + "/" + results[0].tacklingLevel + "\r\nPassing: " + results[0].passingLevel + "/" + results[0].passingLevel + "\r\nFortitude: " +
+			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate);
+		console.log(results[0]);
+	});
 }
 
 commands.poll = function(bot,message,args) {
