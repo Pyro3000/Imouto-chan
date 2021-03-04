@@ -122,3 +122,10 @@ $suicide -N!ghtCrawIer
 using a random trending search for nouns as a means of randomly generating new items for chests -Znath
 test -Pyro三千
 disable that shit for here wtf -Pyro三千
+imouto should say how long I’m tired for -Jackstick
+time-ball-held stat -Jackstick
+add that to $smug -Jackstick
+you’re still banned for X hours timer -Jackstick
+5% chance of dropping the gnome ball when a pass is attempted.  Then anyone can pick it up with a command like $grab. -Jackstick
+make tackles more effective Christ I feel like all we do is ineffective tackles -Jackstick
+8hr ban for everyone except <@284181145447301120> -Jackstick
