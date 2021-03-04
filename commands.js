@@ -257,12 +257,11 @@ function fortitudeLevelUp(message, defPlayer, expGain) {
 
 function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	var newHP;
-	var currentHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userHealth);
-	var defMaxHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth);
-	var levelDifference = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel) - 
-		Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel);
+	var currentHP = defPlayer.userHealth;
+	var defMaxHP = defPlayer.userMaxHealth;
+	var levelDifference = defPlayer.fortitudeLevel) - offPlayer.tacklingLevel);
 	var expGained;
-	var defExpGain = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel) * 10;
+	var defExpGain = defPlayer.fortitudeLevel * 10;
 	var healDate = new Date();
 	
 	
@@ -275,32 +274,21 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	
 	if (newHP <= 0) {
 		newHP = 0;
-		global.imouto.gnomeball = message.author.id;
+		defPlayer.hasGnomeball = false;
+		offPlayer.hasGnomeball = true;
 		message.reply("stole the gnomeball" + suffix);
 		expGained = 10 + levelDifference;
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
 		healDate.setHours(healDate.getHours() + 1);
-		global.imouto.minigames.gnomeball[defPlayer.id].stats.startHealing = healDate;
-		if(currentHP <= 0) {
-			if(!global.imouto.minigames.gnomeball[message.author.id].yellowCards) {
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-				}
-				
-				var yellowCards = global.imouto.minigames.gnomeball[message.author.id].yellowCards;
-				message.channel.send("The referee gives you a yellow card for harassing an exhausted player" + suffix);
-				yellowCards++;
-				global.imouto.minigames.gnomeball[message.author.id].yellowCards = yellowCards;
-				
-				if(yellowCards >= 3) {
-					var redCardDate = new Date();
-					message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-					redCardDate.setDate(redCardDate.getDate() + 1);
-					global.imouto.minigames.gnomeball[message.author.id].redCardExpires = redCardDate;
-				}
-				
-				saveImouto();
+		dbConnection.query(`UPDATE stats SET healDate = ` + offPlayer.healDate + ` WHERE discordID = ` + offPlayer.discordID `, function (error, results, fields) {
+			if(error) throw error; {
+				console.log(error);
+			}
+		});
+		if(currentHP <= 0) {	
+			message.channel.send("The referee gives you a yellow card for harassing an exhausted player" + suffix);
+			increaseYellowCards(message, offPlayer);
 		}
 	}
 	else {
@@ -309,7 +297,8 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		tacklingLevelUp(message, offPlayer, 10);
 	}
 	
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.userHealth = newHP;
+	defPlayer.userHealth = newHP; //make changeHealth(); function
+	
 	console.log(currentHP + " currentHP");
 	console.log(levelDifference + " levelDif");
 	console.log(defExpGain + " defExPgain");
@@ -337,7 +326,11 @@ function conductTackle(message, offPlayer, defPlayer) {
 			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 10 minutes" + suffix);
 			tackleDate.setMinutes(tackleDate.getMinutes() + 10);
 			offPlayer.failedTackle = tackleDate;
-			dbConnection.query(`INSERT INTO stats (failedTackle) VALUES ('$tackleDate')`);
+			dbConnection.query(`UPDATE stats SET failedTackle = ` + tackleDate + ` WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
+				if(error) throw error; {
+					console.log(error);
+				}
+			});
 		}
 	}
 	else {
