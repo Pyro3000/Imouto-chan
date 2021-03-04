@@ -259,7 +259,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	var newHP;
 	var currentHP = defPlayer.userHealth;
 	var defMaxHP = defPlayer.userMaxHealth;
-	var levelDifference = defPlayer.fortitudeLevel) - offPlayer.tacklingLevel);
+	var levelDifference = defPlayer.fortitudeLevel - offPlayer.tacklingLevel;
 	var expGained;
 	var defExpGain = defPlayer.fortitudeLevel * 10;
 	var healDate = new Date();
@@ -281,7 +281,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
 		healDate.setHours(healDate.getHours() + 1);
-		dbConnection.query(`UPDATE stats SET healDate = ` + offPlayer.healDate + ` WHERE discordID = ` + offPlayer.discordID `, function (error, results, fields) {
+		dbConnection.query(`UPDATE stats SET healDate = ` + offPlayer.healDate + ` WHERE discordID = ` + offPlayer.discordID, function (error, results, fields) {
 			if(error) throw error; {
 				console.log(error);
 			}
@@ -946,7 +946,7 @@ commands.pass = function(bot, message, args) {
 	}
 }
 
-function increaseYellowCards(message, offPlayer) {
+function increaseYellowCards(message, offPlayer, defPlayer) {
 	message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball.\r\n" +
 	"The referee gives you a yellow card" + suffix);
 
@@ -988,7 +988,7 @@ function attemptTackle(message, offPlayer, defPlayer) {
 				}
 			}
 			else {
-				increaseYellowCards(message, offplayer);			
+				increaseYellowCards(message, offPlayer, defPlayer);			
 			}
 		}
 		else {
@@ -1023,14 +1023,13 @@ function getTackleStats(bot, message, args){
 		if (error) throw error; {
 			console.log(error);
 		}
-		offPlayer = {
-				offPlayer.discordID 	= message.author.id,
-				offPlayer.userHealth 	= results[0].userHealth,
-				offPlayer.tacklingLevel = results[0].tacklingLevel,
-				offPlayer.tacklingExp 	= results[0].tacklingExp,
-				offPlayer.yellowCards 	= results[0].yellowCards,
-				offPlayer.unbanDate	= results[0].unbanDate
-		};
+		offPlayer.discordID 	= message.author.id;
+		offPlayer.userHealth 	= results[0].userHealth;
+		offPlayer.tacklingLevel = results[0].tacklingLevel;
+		offPlayer.tacklingExp 	= results[0].tacklingExp;
+		offPlayer.yellowCards 	= results[0].yellowCards;
+		offPlayer.unbanDate	= results[0].unbanDate;
+		
 		console.log("offPlayer: " + offPlayer.userHealth);
 
 		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
@@ -1038,12 +1037,10 @@ function getTackleStats(bot, message, args){
 			if(error) throw error; {
 				console.log(error)
 			}
-			defPlayer = {
-					defPlayer.discordID = message.mentions.users.array()[0].id,
-					defPlayer.userHealth = results[0].userHealth,
-					defPlayer.fortitudeLevel = results[0].fortitudeLevel,
-					defPlayer.fortitudeExp = results[0].fortitudeExp
-			};
+			defPlayer.discordID = message.mentions.users.array()[0].id;
+			defPlayer.userHealth = results[0].userHealth;
+			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
+			defPlayer.fortitudeExp = results[0].fortitudeExp;
 
 			attemptTackle(message, offPlayer, defPlayer);
 		});
