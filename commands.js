@@ -199,7 +199,7 @@ function getNameForUser(user, guild) {
     return "[Someone who left the channel]";
   }
   if (guild !== null && guild !== undefined) {
-    var foundUser = guild.members.cache.get(user.id);
+    var foundUser = guild.members.cache.get(user);
     if (foundUser && foundUser.nickname) {
       return foundUser.nickname;
     }
@@ -209,13 +209,13 @@ function getNameForUser(user, guild) {
 
 function gnomeballChangeHands(message, offPlayer, defPlayer) {
 	message.reply("you have stolen the gnomeball" + suffix);
-	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ` + offPlayer.discordID);
-	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ` + defPlayer.discordID);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ?`, [offPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ?`, [defPlayer.discordID]);
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
-	var skillExp = Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingExp) + expGain;
-	var skillLevel = Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel);
+	var skillExp = offPlayer.tacklingExp + expGain;
+	var skillLevel = offPlayer.tacklingLevel;
 	var expRequired = (skillLevel + 1) * 2.5;
 	
 	if (skillLevel < 99) {
@@ -225,18 +225,15 @@ function tacklingLevelUp(message, offPlayer, expGain) {
 			expRequired += 2.5;
 		}
 	}
-	
-	global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel = skillLevel;
-	global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingExp = skillExp;
-	
-	saveImouto();
+	dbConnection.query(`UPDATE stats SET tacklingLevel = ?, tacklingExp = ? WHERE discordID = ?`,
+		[skillLevel, skillExp, offPlayer.discordID]);
 }
 
 function fortitudeLevelUp(message, defPlayer, expGain) {
-	var skillExp = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeExp) + 10;
-	var skillLevel = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel);
+	var skillExp = defPlayer.fortitudeExp + 10;
+	var skillLevel = defPlayer.fortitudeLevel;
 	var expRequired = (skillLevel + 1) * 2.5;
-	var userMaxHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth);
+	var userMaxHP = defPlayer.userMaxHealth;
 	
 	if (skillLevel < 99) {
 		while (skillExp > expRequired) {
@@ -247,12 +244,10 @@ function fortitudeLevelUp(message, defPlayer, expGain) {
 			
 		}
 	}
-	
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel = skillLevel;
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeExp = skillExp;
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth = (skillLevel + 1) * 2.5;
-	
-	saveImouto();
+
+	var maxHealth = (skillLevel + 1) * 2.5;
+	dbConnection.query(`UPDATE stats SET fortitudeLevel = ?, fortitudeExp = ?, userMaxHealth = ?  WHERE discordID = ?`,
+			[skillLevel, skillExp, maxHealth, defPlayer.discordID]);
 }
 
 function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
@@ -281,7 +276,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
 		healDate.setHours(healDate.getHours() + 1);
-		dbConnection.query(`UPDATE stats SET healDate = ` + offPlayer.healDate + ` WHERE discordID = ` + offPlayer.discordID, function (error, results, fields) {
+		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = 0  WHERE discordID = ?`,[healDate, defPlayer.discordID] ,function (error, results, fields) {
 			if(error) throw error; {
 				console.log(error);
 			}
@@ -292,8 +287,9 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		}
 	}
 	else {
-		message.channel.send(getNameForUser(defPlayer, message.guild) +
+		message.channel.send(getNameForUser(defPlayer.discordID, message.guild) +
 			" is hit and is now at " + newHP + "/" + defMaxHP + suffix);
+		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = ? WHERE discordID = ?`, [healDate, newHP, defPlayer.discordID]);
 		tacklingLevelUp(message, offPlayer, 10);
 	}
 	
@@ -326,7 +322,7 @@ function conductTackle(message, offPlayer, defPlayer) {
 			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 10 minutes" + suffix);
 			tackleDate.setMinutes(tackleDate.getMinutes() + 10);
 			offPlayer.failedTackle = tackleDate;
-			dbConnection.query(`UPDATE stats SET failedTackle = ` + tackleDate + ` WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
+			dbConnection.query(`UPDATE stats SET failedTackle = ? WHERE discordID = ?`, [offPlayer.failedTackle,offPlayer.discordID], function (error, results, fields) {
 				if(error) throw error; {
 					console.log(error);
 				}
@@ -976,11 +972,11 @@ function attemptTackle(message, offPlayer, defPlayer) {
 	}
 	else {
 		if (Number(offPlayer.userHealth) > 0) {
-			if (defPlayer.id === message.author.id) {
+			if (defPlayer.discordID === message.author.id) {
 				message.channel.send("You cannot tackle yourself" + suffix);
 			}
 			else if (defPlayer.hasGnomeball) { //takes defending player ID from defending player object
-				if (message.mentionsusers.array()[0].status !== "offline") {
+				if (message.mentions.users.array()[0].status !== "offline") {
 					conductTackle(message, offPlayer, defPlayer);
 				}
 				else {
@@ -1005,14 +1001,17 @@ function getTackleStats(bot, message, args){
 			tacklingLevel: 0,
 			tacklingExp: 0,
 			yellowCards: 0,
-			unbanDate: null
+			unbanDate: null,
+			hasGnomeball: false,
+			failedTackle: null
 	}; //Could likely just be empty
 						
 	var defPlayer = {
 			discordID: message.mentions.users.array()[0],
 			userHealth: 0,
 			fortitudeLevel: 0,
-			fortitudeExp: 0
+			fortitudeExp: 0,
+			hasGnomeball: false
 	};//as above. Empty both after testing.
 	
 	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
@@ -1029,7 +1028,7 @@ function getTackleStats(bot, message, args){
 		offPlayer.tacklingExp 	= results[0].tacklingExp;
 		offPlayer.yellowCards 	= results[0].yellowCards;
 		offPlayer.unbanDate	= results[0].unbanDate;
-		
+		offPlayer.failedTackle 	= results[0].failedTackle;
 		console.log("offPlayer: " + offPlayer.userHealth);
 
 		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
@@ -1041,7 +1040,7 @@ function getTackleStats(bot, message, args){
 			defPlayer.userHealth = results[0].userHealth;
 			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
 			defPlayer.fortitudeExp = results[0].fortitudeExp;
-
+			defPlayer.hasGnomeball = results[0].hasGnomeball;
 			attemptTackle(message, offPlayer, defPlayer);
 		});
 	});

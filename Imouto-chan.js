@@ -422,7 +422,7 @@ function generatePlant(message, currentSeed) {
 
 function growSeed(message) {
 	//REWORK TO WORK WITH DATABASE AND WEBSITE
-	for(seed in imouto.minigames.gardening[message.author.id].plantedSeeds) {
+/*	for(seed in imouto.minigames.gardening[message.author.id].plantedSeeds) {
 		var plantedSeeds = imouto.minigames.gardening[message.author.id].plantedSeeds;
 		var currentSeed = plantedSeeds[seed];
 		var growDate = new Date(plantedSeeds[seed][1]);
@@ -432,11 +432,11 @@ function growSeed(message) {
 			generatePlant(message, currentSeed);
 			imouto.minigames.gardening[message.author.id].plantedSeeds.splice(seed, 1);
 		}
-	}
+	}*/
 }
 
 function generatePet(message) {
-	//POTENTIAL FINE?
+	/*POTENTIAL FINE?
 	//"petBirthday": null,"petName": null,"petType":null,"petStats":{"age":0, "affection":0,"gender":null,"stamina":0,"power":0,"speed":0,"intelligence":0}}}};
 	var eggHatched = imouto.minigames.pets[message.author.id].incubator;
 	var petSpecies = {"alluring egg":"succubus","slimey egg":"slime","scaley egg":"lamia","stone egg":"golem","metal egg":"dullahan","rainbow egg":"unicorn"}
@@ -462,11 +462,11 @@ function generatePet(message) {
 	imouto.minigames.pets[message.author.id].pet.activePet.skillUpAvailable = 30;
 	imouto.minigames.pets[message.author.id].pet.activePet.petName = null;
 	
-	saveImouto();
+	saveImouto();*/
 }
 
 function hatchPet(message) {
-	//REVIEW
+	/*REVIEW
 	var hatchDate = new Date(imouto.minigames.pets[message.author.id].hatchDate);
 	var hatchAttemptDate = new Date();
 	
@@ -475,7 +475,7 @@ function hatchPet(message) {
 	}
 	else {
 		console.log(message.author.username + " egg not ready to hatch yet");
-	}
+	}*/
 }
 
 function fieldRace(bot, message, eventParticipants) {
