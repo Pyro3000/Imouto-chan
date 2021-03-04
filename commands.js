@@ -207,10 +207,10 @@ function getNameForUser(user, guild) {
   return user.username;
 }
 
-function automaticTackle(message, offPlayer, defPlayer) {
+function gnomeballChangeHands(message, offPlayer, defPlayer) {
 	message.reply("you have stolen the gnomeball" + suffix);
-	global.imouto.gnomeball = offPlayer.id;
-	//CHANGE TO HAVE DATABASE VALUE FOR offPlayer AND defPlayer SWITCH VALUES
+	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ` + offPlayer.discordID);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ` + defPlayer.discordID);
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
@@ -984,7 +984,7 @@ function attemptTackle(message, offPlayer, defPlayer) {
 					conductTackle(message, offPlayer, defPlayer);
 				}
 				else {
-					automaticTackle(message, offPlayer, defPlayer);
+					gnomeballChangeHands(message, offPlayer, defPlayer);
 				}
 			}
 			else {
