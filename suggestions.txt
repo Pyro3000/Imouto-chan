@@ -129,3 +129,4 @@ you’re still banned for X hours timer -Jackstick
 5% chance of dropping the gnome ball when a pass is attempted.  Then anyone can pick it up with a command like $grab. -Jackstick
 make tackles more effective Christ I feel like all we do is ineffective tackles -Jackstick
 8hr ban for everyone except <@284181145447301120> -Jackstick
+fix your bot -Snake1235

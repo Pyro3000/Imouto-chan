@@ -296,6 +296,9 @@ function healUser(message) {
 	//UPDDATED BUT NEEDS TESTED
 	var currentTime = new Date();
 	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`,(error, results) => {
+		if(error) {
+			generateValues(message);
+		}
 		var healingTime = new Date(results[0].healDate);
 		var userHP = results[0].userHealth;
 		var userMaxHP = results[0].userMaxHealth;
@@ -563,7 +566,7 @@ bot.on('message', function(message) {
 	}
 	else {
 		generateValues(message);
-		
+		healUser(message);
 		
 		var botDateObject = new Date();
 		
@@ -636,8 +639,6 @@ bot.on('message', function(message) {
 		if(eventActive === false && eventDate < messageDate) {
 			chooseEvent(bot, message);
 		}
-		
-		healUser(message);
 		
 		/*if(imouto.minigames.pets[message.author.id].hasPet === false && imouto.minigames.pets[message.author.id].incubator !== null) {
 			hatchPet(message);

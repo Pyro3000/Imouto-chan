@@ -126,73 +126,6 @@ function saveImouto() {
       JSON.stringify(global.imouto, null, 2));
 }
 
-//---------------------------------------------------------------------------------------
-
-//FUNCTIONS IN BLOCK KEPT FOR EASY TESTING
-//REMOVE BEFORE RELEASE
-
-function triforceCheck(message, reward) {
-
-}
-
-function theBossCheck(message, reward) {
-
-}
-
-function fierceDeityCheck(message, reward) {
-
-}
-
-function phatCheck(message, reward) {
-
-}
-
-function dragonBallCheck(message, reward) {
-
-}
-
-function showOneDigitOnly(message, myNumber) {
-
-}
-
-
-function showOneDigitEvenOdd(message, myNumber) {
-
-}
-
-function lockGreaterLesser(message, hintNumber) {
-
-}
-
-function lockNumberRange(message, hintNumber) {
-	
-}
-
-function unlockBronze(message) {
-
-}
-
-function unlockSilver(message) {
-
-}
-
-
-function unlockGold(message) {
-
-}
-
-function unlockRoulette(message) {
-
-}
-
-function correctChestLock(message) {
-
-}
-
-function failedChestLock(message, guess) {
-
-}
-
 /*----------------------------------------------------------------------------------------*/
 function getNameForUserID(id, guild){
 	var user = global.bot.users.cache.get(id);
@@ -296,7 +229,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		gnomeballChangeHands(message, offPlayer, defPlayer);
 	}
 	else {
-		message.channel.send(getNameForUser(defPlayer.discordID, message.guild) +
+		message.channel.send(getNameForUser(defPlayer, message.guild) +
 			" is hit and is now at " + newHP + "/" + defMaxHP + suffix);
 		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = ? WHERE discordID = ?`, [healDate, newHP, defPlayer.discordID]);
 		tacklingLevelUp(message, offPlayer, 10);
@@ -373,23 +306,6 @@ commands.test = function(bot, message, args) {
 commands.register = function(bot, message, args) {
 	var registrant = message.author.id;
 	var storedUsername = message.author;
-	/*var bcrypt = require('bcrypt');
-	var hash;
-	
-	var queryLine = 'SELECT password FROM users WHERE email = ?'; 
-	
-	dbConnection.query(queryLine, [args[1]], function (error, results, fields) {
-		if (error) throw error;
-		message.channel.send("User hash is: " + results[0].password + suffix);
-		hash = results[0].password;
-	});
-
-	hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
-	bcrypt.compare("secret", hash, function(err, res) {
-    console.log(res);
-	});*/
-	
-	var queryLine = 'SELECT username FROM users WHERE email = ? AND discordID IS NULL'; 
 	if(args[0]) {
 		dbConnection.query(queryLine, [args[0]], function (error, results, fields) {
 		
@@ -910,10 +826,14 @@ commands.pass = function(bot, message, args) {
 	
 	if (message.channel.id === '814148824989171772') {
 		var passingPlayer = {
+			username: message.author.username,
+			nickname: message.author.nickname,
 			discordID: message.author.id,
 			hasGnomeball: true
 		};
 		var receivingPlayer ={
+			username: message.mentions.users.array()[0].username,
+			nickname: message.mentions.users.array()[0].nickname,
 			discordID: message.mentions.users.array()[0].id,
 			hasGnomeball: false
 		};
@@ -938,7 +858,7 @@ commands.pass = function(bot, message, args) {
 				else {
 					receivingPlayer.discordID = message.mentions.users.array()[0].id;
 					message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
-						getNameForUser(message.mentions.users.array()[0].id, message.guild) + suffix);
+						getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
 					gnomeballChangeHands(message, receivingPlayer, passingPlayer);
 				}
 			}
@@ -1011,6 +931,7 @@ function getTackleStats(bot, message, args){
 	var defPlayer = {
 			discordID: message.mentions.users.array()[0],
 			userHealth: 0,
+			userMaxHealth: 0,
 			fortitudeLevel: 0,
 			fortitudeExp: 0,
 			hasGnomeball: false
@@ -1041,6 +962,7 @@ function getTackleStats(bot, message, args){
 			defPlayer.discordID = message.mentions.users.array()[0].id;
 			console.log("OR IS IT THIS? " + defPlayer.discordID);
 			defPlayer.userHealth = results[0].userHealth;
+			defPlayer.userMaxHealth = results[0].userMaxHealth;
 			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
 			defPlayer.fortitudeExp = results[0].fortitudeExp;
 			defPlayer.hasGnomeball = results[0].hasGnomeball;
