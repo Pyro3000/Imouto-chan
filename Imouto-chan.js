@@ -151,7 +151,7 @@ function saveImouto() {
 }*/
 
 function checkFertilizer(message) {
-	var currentDate = new Date();
+/*	var currentDate = new Date();
 	var oldDate = new Date(imouto.minigames.gardening[message.author.id].fertilizerDate);
 	var fertilizerActive = imouto.minigames.gardening[message.author.id].fertilizerUsed;
 	
@@ -167,7 +167,7 @@ function summonZombie(message) {
 	message.channel.send({file: [imageFilePath + 'Zombie/zombie0.gif']});
 	
 
-}
+*/}
 
 function handleCommand(message) {
 	
@@ -350,7 +350,7 @@ function generateValues(message) {
 }
 
 function gardeningLevelUp(message, plantExp) {
-	//UPDATE TO WORK WITH DATABASE
+/*	//UPDATE TO WORK WITH DATABASE
 	var skillExp = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningExp) + plantExp;
 	var originalLevel = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel);
 	var skillLevel = Number(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel);
@@ -388,10 +388,10 @@ function gardeningLevelUp(message, plantExp) {
 	global.imouto.minigames.gnomeball[message.author.id].stats.gardeningExp = skillExp;
 	
 	saveImouto();
-}
+*/}
 
 function generatePlant(message, currentSeed) {
-	//REWRITE AND SIMPLIFY
+/*	//REWRITE AND SIMPLIFY
 	var plantObject = {"potato seed": "potato","corn seed": "corn"};
 	//[seedName, seedTypes[seedName].maxProduce, seedTypes[seedName].expValue, growingTime]
 	var plantProduce = items[currentSeed[0]].product;
@@ -418,7 +418,7 @@ function generatePlant(message, currentSeed) {
 		imouto.minigames.treasure[message.author.id].inventory.push(plantProduce);
 	}
 	gardeningLevelUp(message, plantExp);
-}
+*/}
 
 function growSeed(message) {
 	//REWORK TO WORK WITH DATABASE AND WEBSITE
@@ -532,7 +532,7 @@ function mountainClimb(bot, message, eventParticipants) {
 }
 
 function chooseEvent(bot, message, eventParticipants) {
-	//REVIEW
+/*	//REVIEW
 	eventParticipants = [];
 	//[userID, power, speed, intelligence, stamina]
 	
@@ -554,7 +554,7 @@ function chooseEvent(bot, message, eventParticipants) {
 	}
 	
 	saveImouto();
-	
+*/	
 }
 bot.on("ready",	function() {
 		if(!payingAttention) {

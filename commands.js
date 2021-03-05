@@ -1,13 +1,13 @@
 var commands = {};
 var fs = require('fs');
 var commandDate = new Date();
-var imoutoFilePath	=	"./Imouto2_0/imouto.json";
+var imoutoFilePath	=	"./Imouto-chan/imouto.json";
 var mysql = require('mysql');
 var dbLogin			= 	require('./dbLogin.json');
 var dbConnection 	= 	mysql.createConnection(dbLogin);
 
-var urlPath 		= './Imouto2_0/';
-//var imagePath 		= './Imouto-chan/Images/';
+var urlPath 		= './Imouto-chan/';
+var imagePath 		= './Imouto-chan/Images/';
 var suffix = ', desu!';
 
 /*function cleanString(x) {
@@ -194,23 +194,31 @@ function failedChestLock(message, guess) {
 }
 
 /*----------------------------------------------------------------------------------------*/
+function getNameForUserID(id, guild){
+	var user = global.bot.users.cache.get(id);
+	if (user === null || user === undefined) {
+		return "[User Not In Channel]"
+	}
+	return "[unknown issue]"
+}
+
 function getNameForUser(user, guild) {
-  if (user === null || user === undefined) {
-    return "[Someone who left the channel]";
-  }
-  if (guild !== null && guild !== undefined) {
-    var foundUser = guild.members.cache.get(user);
-    if (foundUser && foundUser.nickname) {
-      return foundUser.nickname;
-    }
-  }
-  return user.username;
+	if (user === null || user === undefined) {
+ 		return "[Someone who left the channel]";
+	}
+  	if (guild !== null && guild !== undefined) {
+		var foundUser = guild.members.cache.get(user.id);
+		if (foundUser && foundUser.nickname) {
+			return foundUser.nickname;
+		}
+	}
+	//return getNameForUserID(user, guild);
+	return user.username;
 }
 
 function gnomeballChangeHands(message, offPlayer, defPlayer) {
-	message.reply("you have stolen the gnomeball" + suffix);
-	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ?`, [offPlayer.discordID]);
-	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ?`, [defPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ?`, [defPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ?`, [offPlayer.discordID]);
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
@@ -285,6 +293,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 			message.channel.send("The referee gives you a yellow card for harassing an exhausted player" + suffix);
 			increaseYellowCards(message, offPlayer);
 		}
+		gnomeballChangeHands(message, offPlayer, defPlayer);
 	}
 	else {
 		message.channel.send(getNameForUser(defPlayer.discordID, message.guild) +
@@ -900,66 +909,58 @@ commands.badges = function(bot, message, args) {
 commands.pass = function(bot, message, args) {
 	
 	if (message.channel.id === '814148824989171772') {
-	
-	if (!global.imouto.gnomeball) {
-		global.imouto.gnomeball = message.author.id;
-	}
-	
-	if (global.imouto.gnomeball == message.author.id) {
-		if (message.mentions.users.size === 0) {
-			message.channel.send("Use @user to pass the gnomeball" + suffix);
-		 }
-		 else if (message.mentions.users.size > 1) {
-			message.channel.send("You can only pass to one person" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].id === message.author.id) {
-			message.channel.send("Don't be a ballhog" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
-			message.channel.send("Bots don't know how to play Gnomeball" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].status === "offline") {
-			 message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
-				"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
-		 }
-		 else {
-			var newBallOwner = message.mentions.users.array()[0].id;
+		var passingPlayer = {
+			discordID: message.author.id,
+			hasGnomeball: true
+		};
+		var receivingPlayer ={
+			discordID: message.mentions.users.array()[0].id,
+			hasGnomeball: false
+		};
+		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
+			console.log("results: " + results);
+			if (results) {
 
-			message.channel.send(getNameForUser(message.author, message.guild) + " passes the gnomeball to "
-				+ getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
-				
-			global.imouto.gnomeball = newBallOwner;
-		 }
-	}
-	else {
-		message.channel.send("You don't have the gnomeball " + getNameForUser(message.author, message.guild) + suffix);
-	}
-	
-	saveImouto();
+				if (message.mentions.users.size > 1) {
+					message.channel.send("You can only pass to one person" + suffix);
+				}
+				else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
+					message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
+						"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
+
+				}
+				else if (message.mentions.users.array()[0].id === message.author.id) {
+					message.channel.send("Don't be a ballhog" + suffix);
+				}
+				else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
+					message.channel.send("Bots don't know how to play Gnomeball" + suffix);
+				}
+				else {
+					receivingPlayer.discordID = message.mentions.users.array()[0].id;
+					message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
+						getNameForUser(message.mentions.users.array()[0].id, message.guild) + suffix);
+					gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+				}
+			}
+			else {
+				message.reply("You don't have the gnomeball" + suffix);
+			}
+		});
 	}
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
 	}
 }
 
-function increaseYellowCards(message, offPlayer, defPlayer) {
-	message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball.\r\n" +
-	"The referee gives you a yellow card" + suffix);
-
+function increaseYellowCards(message, offPlayer) {
 	if (offPlayer.yellowCards >= 2) {
-		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
-			if(error) throw error; {
-				console.log(error);
-			}
-		});
+		var banDate = new Date();
+		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = ?`, [offPlayer.discordID]);
 		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
+		dbConnection.query(`UPDATE stats SET unbanDate = ? WHERE discordID = ?`, [banDate, offPlayer.discordID]);
 	}
 	else {
-		dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = '$offPlayer.discordID'`, function (error, results, fields) {
-			if(error) throw error; {
-				console.log(error);
-			}
-		});
+		dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = ?`,[offPlayer.discordID]);
 	}	
 }
 
@@ -984,7 +985,8 @@ function attemptTackle(message, offPlayer, defPlayer) {
 				}
 			}
 			else {
-				increaseYellowCards(message, offPlayer, defPlayer);			
+					message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball" + suffix);
+					increaseYellowCards(message, offPlayer);			
 			}
 		}
 		else {
@@ -1013,7 +1015,7 @@ function getTackleStats(bot, message, args){
 			fortitudeExp: 0,
 			hasGnomeball: false
 	};//as above. Empty both after testing.
-	
+	console.log("IS IT THIS? " + defPlayer.discordID);
 	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
 	var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
 	
@@ -1037,6 +1039,7 @@ function getTackleStats(bot, message, args){
 				console.log(error)
 			}
 			defPlayer.discordID = message.mentions.users.array()[0].id;
+			console.log("OR IS IT THIS? " + defPlayer.discordID);
 			defPlayer.userHealth = results[0].userHealth;
 			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
 			defPlayer.fortitudeExp = results[0].fortitudeExp;
