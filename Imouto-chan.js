@@ -83,13 +83,6 @@ function getNameForUser(user, guild) {
   return user.username;
 }
 
-/*function getNameForUser(user, guild) {
-  if (guild.members.find("id", user.id).nickname) {
-    return guild.members.find("id", user.id).nickname;
-  }
-  return user.username;
-}*/
-
 function automaticTackle(message, offPlayer, defPlayer) {
 	message.reply("you have stolen the gnomeball" + suffix);
 	global.imouto.gnomeball = offPlayer.id;
@@ -299,36 +292,37 @@ function handleCommand(message) {
 	}
 }
 
-function healUser(message) {
-	//UPDATE TO WORK WITH DATABASE
-	/*var currentTime = new Date();
-	var healingTime = new Date(imouto.minigames.gnomeball[message.author.id].stats.startHealing);
-	var userHP = Number(imouto.minigames.gnomeball[message.author.id].stats.userHealth);
-	var userMaxHP = Number(imouto.minigames.gnomeball[message.author.id].stats.userMaxHealth);
-	
-	if(userMaxHP > userHP) {
-		if(currentTime > healingTime) {
-			var diff = Math.abs(Number(healingTime) - Number(currentTime));
-			var hourDiff = Math.floor(((diff/1000)/60)/60);
-			
-			userHP += (hourDiff * 50);
-			
-			if(userHP > userMaxHP) {
-				userHP = userMaxHP;
+function healUser(message) {	
+	//UPDDATED BUT NEEDS TESTED
+	var currentTime = new Date();
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`,(error, results) => {
+		var healingTime = new Date(results[0].healDate);
+		var userHP = results[0].userHealth;
+		var userMaxHP = results[0].userMaxHealth;
+		
+		if(userMaxHP > userHP) {
+			if(currentTime > healingTime) {
+				var diff = Math.abs(Number(healingTime) - Number(currentTime));
+				var hourDiff = Math.floor(((diff/1000)/60)/60);
+				
+				userHP += (hourDiff * 50);
+				
+				if(userHP > userMaxHP) {
+					userHP = userMaxHP;
+				}
+				
+				console.log("Healing " + message.author.username);
+				dbConnection.query(`UPDATE stats SET userHealth = ?`, [userHP]);
 			}
-			
-			console.log("Healing " + message.author.username);
-			imouto.minigames.gnomeball[message.author.id].stats.userHealth = userHP;
-			saveImouto();
+			else {
+				console.log("time constraints not met for " + message.author.username);
+			}
 		}
 		else {
-			console.log("time constraints not met for " + message.author.username);
+			console.log("HP comparison not met for " + message.author.username);
+			console.log("userHP: " + userHP + " userMaxHP " + userMaxHP);
 		}
-	}
-	else {
-		console.log("HP comparison not met for " + message.author.username);
-		console.log("userHP: " + userHP + " userMaxHP " + userMaxHP);
-	}*/
+	});
 }
 
 function generateValues(message) {
