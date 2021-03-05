@@ -150,8 +150,8 @@ function getNameForUser(user, guild) {
 }
 
 function gnomeballChangeHands(message, offPlayer, defPlayer) {
-	dbConnection.query(`UPDATE stats SET hasGnomeball = false WHERE discordID = ?`, [defPlayer.discordID]);
-	dbConnection.query(`UPDATE stats SET hasGnomeball = true WHERE discordID = ?`, [offPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = 0 WHERE discordID = ?`, [defPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = 1 WHERE discordID = ?`, [offPlayer.discordID]);
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
@@ -829,7 +829,7 @@ commands.pass = function(bot, message, args) {
 			username: message.author.username,
 			nickname: message.author.nickname,
 			discordID: message.author.id,
-			hasGnomeball: true
+			hasGnomeball: false
 		};
 		var receivingPlayer ={
 			username: message.mentions.users.array()[0].username,
@@ -839,32 +839,41 @@ commands.pass = function(bot, message, args) {
 		};
 		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
 			console.log("results: " + results);
-			if (results) {
-
-				if (message.mentions.users.size > 1) {
-					message.channel.send("You can only pass to one person" + suffix);
-				}
-				else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
-					message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
-						"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
-
-				}
-				else if (message.mentions.users.array()[0].id === message.author.id) {
-					message.channel.send("Don't be a ballhog" + suffix);
-				}
-				else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
-					message.channel.send("Bots don't know how to play Gnomeball" + suffix);
+			if(results) {
+				if (results[0].hasGnomeball === 1) {
+	
+					if (message.mentions.users.size > 1) {
+						message.channel.send("You can only pass to one person" + suffix);
+					}
+					else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
+						message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
+							"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
+	
+					}
+					else if (message.mentions.users.array()[0].id === message.author.id) {
+						message.channel.send("Don't be a ballhog" + suffix);
+					}
+					else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
+						message.channel.send("Bots don't know how to play Gnomeball" + suffix);
+					}
+					else {
+						receivingPlayer.discordID = message.mentions.users.array()[0].id;
+						message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
+							getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
+						gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+					}
 				}
 				else {
-					receivingPlayer.discordID = message.mentions.users.array()[0].id;
-					message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
-						getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
-					gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+					message.reply("You don't have the gnomeball" + suffix);
+					console.log("Tried to pass gnomeball but didn't have it: " + results);
+					console.log(results);
+					console.log("results printed: " + results[0]);
 				}
 			}
 			else {
 				message.reply("You don't have the gnomeball" + suffix);
 			}
+	
 		});
 	}
 	else {

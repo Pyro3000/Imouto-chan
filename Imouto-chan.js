@@ -8,7 +8,7 @@ var mysql 			= 	require('mysql');
 var dbLogin			= 	require('./dbLogin.json');
 var dbConnection 	= 	mysql.createConnection(dbLogin);
 
-var imoutoFilePath		=	"./Imouto2_0/imouto.json";
+var imoutoFilePath		=	"./Imouto-chan/imouto.json";
 var imoutoCommands 		= 	require("./commands");
 var tenshiCommands 		= 	require("./tenshi");
 var nekoCommands 		= 	require("./neko");
@@ -24,7 +24,7 @@ personality 		= 	0;
 var suffix 			= 	', desu!';
 imouto				=	{};
 items				= 	require('./items.json');
-var imageFilePath		=	"./Imouto2_0/Images/";
+var imageFilePath		=	"./Imouto-chan/Images/";
 var nobodyCares		=	"nobodycares.jpg";
 var payingAttention =   false;
 
@@ -295,9 +295,9 @@ function handleCommand(message) {
 function healUser(message) {	
 	//UPDDATED BUT NEEDS TESTED
 	var currentTime = new Date();
-	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`,(error, results) => {
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = ?`, [message.author.id], (error, results) => {
 		if(error) {
-			generateValues(message);
+			console.log("ERROR in healUser");
 		}
 		var healingTime = new Date(results[0].healDate);
 		var userHP = results[0].userHealth;
