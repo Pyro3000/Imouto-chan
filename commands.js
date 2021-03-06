@@ -295,6 +295,184 @@ function generateValues (bot, message, args) {
 	});
 }
 
+function increaseYellowCards(message, offPlayer) {
+	if (offPlayer.yellowCards >= 2) {
+		var banDate = new Date();
+		banDate.setHours(banDate.getHours() + 8);
+		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = ?`, [offPlayer.discordID]);
+		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 8 hours");
+		dbConnection.query(`UPDATE stats SET unbanDate = ? WHERE discordID = ?`, [banDate, offPlayer.discordID]);
+	}
+	else {
+		dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = ?`,[offPlayer.discordID]);
+		message.reply("A referee hands you a yellow card" + suffix);
+	}	
+}
+
+function attemptTackle(message, offPlayer, defPlayer) {
+	var attemptedTackleDate = new Date();
+	var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object
+	
+	if(banDate > attemptedTackleDate) {
+		message.reply("you are currently banned from gnomeball" + suffix);
+	}
+	else {
+		if (Number(offPlayer.userHealth) > 0) {
+			if (defPlayer.discordID === message.author.id) {
+				message.channel.send("You cannot tackle yourself" + suffix);
+			}
+			else if (defPlayer.hasGnomeball) { //takes defending player ID from defending player object
+				if (message.mentions.users.array()[0].status !== "offline") {
+					conductTackle(message, offPlayer, defPlayer);
+				}
+				else {
+					gnomeballChangeHands(message, offPlayer, defPlayer);
+				}
+			}
+			else {
+					message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball" + suffix);
+					increaseYellowCards(message, offPlayer);			
+			}
+		}
+		else {
+			message.reply("you are too tired to tackle right now" + suffix)
+			message.reply("You have " + offPlayer.userHealth + "HP" + suffix);
+		}
+	}
+}
+
+function getTackleStats(bot, message, args){
+	var offPlayer = {
+			username: message.author.username,
+			nickname: message.author.nickname,
+			discordID: message.author.id,
+			userHealth: 0,
+			tacklingLevel: 0,
+			tacklingExp: 0,
+			yellowCards: 0,
+			unbanDate: null,
+			hasGnomeball: false,
+			failedTackle: null
+	}; //Could likely just be empty
+						
+	var defPlayer = {
+			username: message.mentions.users.array()[0].username,
+			nickname: message.mentions.users.array()[0].nickname,
+			discordID: message.mentions.users.array()[0],
+			userHealth: 0,
+			userMaxHealth: 0,
+			fortitudeLevel: 0,
+			fortitudeExp: 0,
+			hasGnomeball: false
+	};//as above. Empty both after testing.
+	console.log("IS IT THIS? " + defPlayer.discordID);
+	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
+	var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
+	
+	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) { //query for Offensive Player
+
+		if (error) throw error; {
+			console.log(error);
+		}
+		offPlayer.discordID 	= message.author.id;
+		offPlayer.userHealth 	= results[0].userHealth;
+		offPlayer.tacklingLevel = results[0].tacklingLevel;
+		offPlayer.tacklingExp 	= results[0].tacklingExp;
+		offPlayer.yellowCards 	= results[0].yellowCards;
+		offPlayer.unbanDate	= results[0].unbanDate;
+		offPlayer.failedTackle 	= results[0].failedTackle;
+		console.log("offPlayer: " + offPlayer.userHealth);
+
+		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
+
+			if(error) throw error; {
+				console.log(error)
+			}
+			defPlayer.discordID = message.mentions.users.array()[0].id;
+			console.log("OR IS IT THIS? " + defPlayer.discordID);
+			defPlayer.userHealth = results[0].userHealth;
+			defPlayer.userMaxHealth = results[0].userMaxHealth;
+			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
+			defPlayer.fortitudeExp = results[0].fortitudeExp;
+			defPlayer.hasGnomeball = results[0].hasGnomeball;
+			attemptTackle(message, offPlayer, defPlayer);
+		});
+	});
+}
+
+commands.tackle = function(bot, message, args) {
+	if (message.channel.id === '814148824989171772') {
+		if(message.mentions.users.size === 0) {
+			message.reply("use $tackle @user to tackle" + suffix);
+		}
+		else {
+			getTackleStats(bot, message, args);
+		}
+	}
+	else {
+		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
+	}
+}
+
+commands.pass = function(bot, message, args) {
+	
+	if (message.channel.id === '814148824989171772') {
+		var passingPlayer = {
+			username: message.author.username,
+			nickname: message.author.nickname,
+			discordID: message.author.id,
+			hasGnomeball: false
+		};
+		var receivingPlayer ={
+			username: message.mentions.users.array()[0].username,
+			nickname: message.mentions.users.array()[0].nickname,
+			discordID: message.mentions.users.array()[0].id,
+			hasGnomeball: false
+		};
+		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
+			console.log("results: " + results);
+			if(results) {
+				if (results[0].hasGnomeball === 1) {
+	
+					if (message.mentions.users.size > 1) {
+						message.channel.send("You can only pass to one person" + suffix);
+					}
+					else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
+						message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
+							"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
+	
+					}
+					else if (message.mentions.users.array()[0].id === message.author.id) {
+						message.channel.send("Don't be a ballhog" + suffix);
+					}
+					else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
+						message.channel.send("Bots don't know how to play Gnomeball" + suffix);
+					}
+					else {
+						receivingPlayer.discordID = message.mentions.users.array()[0].id;
+						message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
+							getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
+						gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+					}
+				}
+				else {
+					message.reply("You don't have the gnomeball" + suffix);
+					console.log("Tried to pass gnomeball but didn't have it: " + results);
+					console.log(results);
+					console.log("results printed: " + results[0]);
+				}
+			}
+			else {
+				message.reply("You don't have the gnomeball" + suffix);
+			}
+	
+		});
+	}
+	else {
+		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
+	}
+}
+
 commands.fix = function(bot, message, args) {
 //COMMAND RESERVED FOR DATA ERRORS	
 }
@@ -822,179 +1000,6 @@ commands.badges = function(bot, message, args) {
 	saveImouto();
 }
 
-commands.pass = function(bot, message, args) {
-	
-	if (message.channel.id === '814148824989171772') {
-		var passingPlayer = {
-			username: message.author.username,
-			nickname: message.author.nickname,
-			discordID: message.author.id,
-			hasGnomeball: false
-		};
-		var receivingPlayer ={
-			username: message.mentions.users.array()[0].username,
-			nickname: message.mentions.users.array()[0].nickname,
-			discordID: message.mentions.users.array()[0].id,
-			hasGnomeball: false
-		};
-		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
-			console.log("results: " + results);
-			if(results) {
-				if (results[0].hasGnomeball === 1) {
-	
-					if (message.mentions.users.size > 1) {
-						message.channel.send("You can only pass to one person" + suffix);
-					}
-					else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
-						message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
-							"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
-	
-					}
-					else if (message.mentions.users.array()[0].id === message.author.id) {
-						message.channel.send("Don't be a ballhog" + suffix);
-					}
-					else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
-						message.channel.send("Bots don't know how to play Gnomeball" + suffix);
-					}
-					else {
-						receivingPlayer.discordID = message.mentions.users.array()[0].id;
-						message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
-							getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
-						gnomeballChangeHands(message, receivingPlayer, passingPlayer);
-					}
-				}
-				else {
-					message.reply("You don't have the gnomeball" + suffix);
-					console.log("Tried to pass gnomeball but didn't have it: " + results);
-					console.log(results);
-					console.log("results printed: " + results[0]);
-				}
-			}
-			else {
-				message.reply("You don't have the gnomeball" + suffix);
-			}
-	
-		});
-	}
-	else {
-		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
-	}
-}
-
-function increaseYellowCards(message, offPlayer) {
-	if (offPlayer.yellowCards >= 2) {
-		var banDate = new Date();
-		banDate.setHours(banDate.getHours() + 8);
-		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = ?`, [offPlayer.discordID]);
-		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 8 hours");
-		dbConnection.query(`UPDATE stats SET unbanDate = ? WHERE discordID = ?`, [banDate, offPlayer.discordID]);
-	}
-	else {
-		dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = ?`,[offPlayer.discordID]);
-		message.reply("A referee hands you a yellow card" + suffix);
-	}	
-}
-
-function attemptTackle(message, offPlayer, defPlayer) {
-	var attemptedTackleDate = new Date();
-	var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object
-	
-	if(banDate > attemptedTackleDate) {
-		message.reply("you are currently banned from gnomeball" + suffix);
-	}
-	else {
-		if (Number(offPlayer.userHealth) > 0) {
-			if (defPlayer.discordID === message.author.id) {
-				message.channel.send("You cannot tackle yourself" + suffix);
-			}
-			else if (defPlayer.hasGnomeball) { //takes defending player ID from defending player object
-				if (message.mentions.users.array()[0].status !== "offline") {
-					conductTackle(message, offPlayer, defPlayer);
-				}
-				else {
-					gnomeballChangeHands(message, offPlayer, defPlayer);
-				}
-			}
-			else {
-					message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball" + suffix);
-					increaseYellowCards(message, offPlayer);			
-			}
-		}
-		else {
-			message.reply("you are too tired to tackle right now" + suffix)
-			message.reply("You have " + offPlayer.userHealth + "HP" + suffix);
-		}
-	}
-}
-
-function getTackleStats(bot, message, args){
-	var offPlayer = {
-			discordID: message.author.id,
-			userHealth: 0,
-			tacklingLevel: 0,
-			tacklingExp: 0,
-			yellowCards: 0,
-			unbanDate: null,
-			hasGnomeball: false,
-			failedTackle: null
-	}; //Could likely just be empty
-						
-	var defPlayer = {
-			discordID: message.mentions.users.array()[0],
-			userHealth: 0,
-			userMaxHealth: 0,
-			fortitudeLevel: 0,
-			fortitudeExp: 0,
-			hasGnomeball: false
-	};//as above. Empty both after testing.
-	console.log("IS IT THIS? " + defPlayer.discordID);
-	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
-	var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
-	
-	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) { //query for Offensive Player
-
-		if (error) throw error; {
-			console.log(error);
-		}
-		offPlayer.discordID 	= message.author.id;
-		offPlayer.userHealth 	= results[0].userHealth;
-		offPlayer.tacklingLevel = results[0].tacklingLevel;
-		offPlayer.tacklingExp 	= results[0].tacklingExp;
-		offPlayer.yellowCards 	= results[0].yellowCards;
-		offPlayer.unbanDate	= results[0].unbanDate;
-		offPlayer.failedTackle 	= results[0].failedTackle;
-		console.log("offPlayer: " + offPlayer.userHealth);
-
-		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
-
-			if(error) throw error; {
-				console.log(error)
-			}
-			defPlayer.discordID = message.mentions.users.array()[0].id;
-			console.log("OR IS IT THIS? " + defPlayer.discordID);
-			defPlayer.userHealth = results[0].userHealth;
-			defPlayer.userMaxHealth = results[0].userMaxHealth;
-			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
-			defPlayer.fortitudeExp = results[0].fortitudeExp;
-			defPlayer.hasGnomeball = results[0].hasGnomeball;
-			attemptTackle(message, offPlayer, defPlayer);
-		});
-	});
-}
-
-commands.tackle = function(bot, message, args) {
-	if (message.channel.id === '814148824989171772') {
-		if(message.mentions.users.size === 0) {
-			message.reply("use $tackle @user to tackle" + suffix);
-		}
-		else {
-			getTackleStats(bot, message, args);
-		}
-	}
-	else {
-		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
-	}
-}
 
 commands.stats = function(bot, message, args) {
 	var userHealthValue;
