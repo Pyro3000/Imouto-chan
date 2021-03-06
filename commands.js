@@ -216,7 +216,7 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		expGained = 10 + levelDifference;
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
-		healDate.setHours(healDate.getHours() + 1);
+		healDate.setMinutes(healDate.getMinutes() + 10);
 		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = 0  WHERE discordID = ?`,[healDate, defPlayer.discordID] ,function (error, results, fields) {
 			if(error) throw error; {
 				console.log(error);
@@ -261,8 +261,8 @@ function conductTackle(message, offPlayer, defPlayer) {
 		}
 		else {
 			tacklingLevelUp(message, offPlayer, 5);
-			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 10 minutes" + suffix);
-			tackleDate.setMinutes(tackleDate.getMinutes() + 10);
+			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 5 minutes" + suffix);
+			tackleDate.setMinutes(tackleDate.getMinutes() + 5);
 			offPlayer.failedTackle = tackleDate;
 			dbConnection.query(`UPDATE stats SET failedTackle = ? WHERE discordID = ?`, [offPlayer.failedTackle,offPlayer.discordID], function (error, results, fields) {
 				if(error) throw error; {
