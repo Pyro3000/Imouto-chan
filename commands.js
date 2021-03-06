@@ -884,8 +884,9 @@ commands.pass = function(bot, message, args) {
 function increaseYellowCards(message, offPlayer) {
 	if (offPlayer.yellowCards >= 2) {
 		var banDate = new Date();
+		banDate = banDate.setHours(banDate.getHours + 8);
 		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = ?`, [offPlayer.discordID]);
-		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
+		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 8 hours");
 		dbConnection.query(`UPDATE stats SET unbanDate = ? WHERE discordID = ?`, [banDate, offPlayer.discordID]);
 	}
 	else {

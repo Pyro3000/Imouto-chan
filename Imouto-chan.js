@@ -315,7 +315,7 @@ function healUser(message) {
 				}
 				
 				console.log("Healing " + message.author.username);
-				dbConnection.query(`UPDATE stats SET userHealth = ?`, [userHP]);
+				dbConnection.query(`UPDATE stats SET userHealth = ? WHERE discordID = ?`, [userHP, message.author.id]);
 			}
 			else {
 				console.log("time constraints not met for " + message.author.username);
