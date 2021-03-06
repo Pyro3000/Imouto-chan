@@ -7,7 +7,7 @@ var dbLogin			= 	require('./dbLogin.json');
 var dbConnection 	= 	mysql.createConnection(dbLogin);
 
 var urlPath 		= './Imouto-chan/';
-//var imagePath 		= './Imouto-chan/Images/';
+var imagePath 		= './Imouto-chan/Images/';
 var suffix = ', desu!';
 
 /*function cleanString(x) {
@@ -126,503 +126,37 @@ function saveImouto() {
       JSON.stringify(global.imouto, null, 2));
 }
 
-//---------------------------------------------------------------------------------------
-
-
-
-function triforceCheck(message, reward) {
-	if(!global.imouto.minigames.treasure[message.author.id].triforceCount) {
-		global.imouto.minigames.treasure[message.author.id].triforceCount = 0;
+/*----------------------------------------------------------------------------------------*/
+function getNameForUserID(id, guild){
+	var user = global.bot.users.cache.get(id);
+	if (user === null || user === undefined) {
+		return "[User Not In Channel]"
 	}
-	
-	var triforceShards = global.imouto.minigames.treasure[message.author.id].triforceCount;
-	
-	if(global.triforceList.indexOf(reward) > -1) {
-		triforceShards++;
-		global.imouto.minigames.treasure[message.author.id].triforceCount = triforceShards;
-	}
-
-	if (triforceShards == 3) {
-		message.channel.send("You have completed the Triforce" + suffix);
-		global.imouto.minigames.treasure[message.author.id].triforceCount = 0;
-		
-		for (shard in global.triforceList) {
-			global.imouto.goldLoot.push(global.triforceList[shard]);
-			global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(global.triforceList[shard]), 1);
-		}
-		
-		if (!global.imouto[message.author.id]) {
-			global.imouto[message.author.id] = {};
-		}
-		if (!global.imouto[message.author.id].badges) {
-			global.imouto[message.author.id].badges = [];
-		}
-		
-		global.imouto[message.author.id].badges.push("Obtained the Triforce");
-	}
-}
-
-function theBossCheck(message, reward) {
-	if(!global.imouto.minigames.treasure[message.author.id].theBossCount) {
-		global.imouto.minigames.treasure[message.author.id].theBossCount = 0;
-	}
-	
-	var theBossItems = global.imouto.minigames.treasure[message.author.id].theBossCount;
-	
-	if(global.theBossList.indexOf(reward) > -1) {
-		theBossItems++;
-		global.imouto.minigames.treasure[message.author.id].theBossCount = theBossItems;
-	}
-
-	if (theBossItems == 2) {
-		message.channel.send("You have inherited The Will of The Boss" + suffix);
-		global.imouto.minigames.treasure[message.author.id].theBossCount = 0;
-		
-		for (item in global.theBossList) {
-			global.imouto.goldLoot.push(global.theBossList[item]);
-			global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(global.theBossList[item]), 1);
-		}
-		
-		if (!global.imouto[message.author.id]) {
-			global.imouto[message.author.id] = {};
-		}
-		if (!global.imouto[message.author.id].badges) {
-			global.imouto[message.author.id].badges = [];
-		}
-		
-		global.imouto[message.author.id].badges.push("Inherited The Will of the Boss");
-	}
-}
-
-function fierceDeityCheck(message, reward) {
-	if(!global.imouto.minigames.treasure[message.author.id].collectibleMasks) {
-		global.imouto.minigames.treasure[message.author.id].collectibleMasks = 0;
-	}
-	
-	var masksCollected = global.imouto.minigames.treasure[message.author.id].collectibleMasks;
-	
-	if(global.collectibleMaskList.indexOf(reward) > -1) {
-		masksCollected++;
-		global.imouto.minigames.treasure[message.author.id].collectibleMasks = masksCollected;
-	}
-
-	if (masksCollected == 20) {
-		message.channel.send("You have collected all 20 Collectible Masks" + suffix);
-		global.imouto.minigames.treasure[message.author.id].collectibleMasks = 0;
-		
-		for (mask in global.collectibleMaskList) {
-			global.imouto.loot.push(global.collectibleMaskList[mask]);
-			global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(global.collectibleMaskList[mask]), 1);
-		}
-		
-		if (!global.imouto[message.author.id]) {
-			global.imouto[message.author.id] = {};
-		}
-		if (!global.imouto[message.author.id].badges) {
-			global.imouto[message.author.id].badges = [];
-		}
-		
-		global.imouto[message.author.id].badges.push("Obtained the Fierce Deity Mask");
-		global.imouto.minigames.treasure[message.author.id].inventory.push("Fierce Deity Mask");
-	}
-}
-
-function phatCheck(message, reward) {
-	if(!global.imouto.minigames.treasure[message.author.id].partyhatCount) {
-		global.imouto.minigames.treasure[message.author.id].partyhatCount = 0;
-	}
-	
-	var phatsCollected = global.imouto.minigames.treasure[message.author.id].partyhatCount;
-	
-	if(global.partyhatList.indexOf(reward) > -1) {
-		phatsCollected++;
-		global.imouto.minigames.treasure[message.author.id].partyhatCount = phatsCollected;
-	}
-
-	if (phatsCollected == 6) {
-		message.channel.send("You have collected all 6 Party Hats" + suffix);
-		global.imouto.minigames.treasure[message.author.id].partyhatCount = 0;
-		
-		for (hat in global.partyhatList) {
-			global.imouto.loot.push(global.partyhatList[hat]);
-			global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(global.partyhatList[hat]), 1);
-		}
-		
-		if (!global.imouto[message.author.id]) {
-			global.imouto[message.author.id] = {};
-		}
-		if (!global.imouto[message.author.id].badges) {
-			global.imouto[message.author.id].badges = [];
-		}
-		
-		global.imouto[message.author.id].badges.push("Shameless Party Animal");
-	}
-}
-
-function dragonBallCheck(message, reward) {
-	var inventory = global.imouto.minigames.treasure[message.author.id].inventory;
-	
-	if(!global.imouto.minigames.treasure[message.author.id].dragonBallCount) {
-		global.imouto.minigames.treasure[message.author.id].dragonBallCount = 0;
-	}
-
-	var dragonBalls = global.imouto.minigames.treasure[message.author.id].dragonBallCount;
-	
-	if(global.dragonBallList.indexOf(reward) > -1) {
-		dragonBalls++;
-		global.imouto.minigames.treasure[message.author.id].dragonBallCount = dragonBalls;
-	}
-	
-	if (dragonBalls === 7) {
-		message.channel.send("You have obtained all seven Dragon Balls" + suffix);
-		global.imouto.minigames.treasure[message.author.id].dragonBallCount = 0;
-		
-		for (ball in global.dragonBallList) {
-			global.imouto.loot.push(global.dragonBallList[ball]);
-			global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(global.dragonBallList[ball]), 1);
-		}
-		
-		if (!global.imouto[message.author.id]) {
-			global.imouto[message.author.id] = {};
-		}
-		if (!global.imouto[message.author.id].badges) {
-			global.imouto[message.author.id].badges = [];
-		}
-		
-		global.imouto[message.author.id].badges.push("Summoned Shenron");
-				
-	}
-}
-
-function showOneDigitOnly(message, myNumber) {
-	if (myNumber < 10) {
-		message.channel.send("The second number is " +
-		myNumber + suffix);
-	}
-	else {
-		if (Math.random() < 0.5) { // 50% probability
-		//show first digit
-		message.channel.send("The first number is " + Math.floor(myNumber / 10 ) + suffix);
-		}
-		else {
-		//show second digit
-		message.channel.send("The second number is " + myNumber % 10);
-		}
-	}
-}
-
-
-function showOneDigitEvenOdd(message, myNumber) {
-	if (myNumber < 10) {
-		if (myNumber % 2 == 0) {
-			message.channel.send("The second number is even" + suffix);
-		}
-		else {
-			message.channel.send("The second number is odd" + suffix);
-		}
-	}
-	else {
-		if (Math.random() < 0.5) { // 50% probability
-			if (Math.floor(myNumber/10)%2 == 0 ) {
-				message.channel.send("The first number is even" + suffix);
-			}
-			else {
-				message.channel.send("The first number is odd" + suffix);
-			}
-		}		
-		else {
-			if ((myNumber%10)%2 == 0) {
-				message.channel.send("The second number is even" + suffix);
-			}
-			else {
-				message.channel.send("The second number is odd" + suffix);
-			}
-		}
-	}
-}
-
-function lockGreaterLesser(message, hintNumber) {
-	
-	var lesserHint = hintNumber + 1;
-	var greaterHint = hintNumber - 1;
-	
-	if (global.chestLock >= hintNumber) {
-					message.channel.send("The number is greater than " + greaterHint + suffix);
-				}
-				else {
-					message.channel.send("The number is less than " + lesserHint + suffix);
-				}
-	
-}
-
-function lockNumberRange(message, hintNumber) {
-	var highNumber = Math.ceil(Math.random()*(99 - hintNumber) + hintNumber);
-	var lowNumber = Math.ceil(Math.random()*(hintNumber - 1));
-	message.channel.send("The number is between " + lowNumber + " and " + highNumber + suffix);
-	
-}
-
-function unlockBronze(message) {
-		global.imouto.minigames.treasure[message.author.id].chestsOpened++;
-		
-	if(global.imouto.minigames.treasure[message.author.id].chestsOpened % 5 == 0) {
-			
-		if (!global.imouto.minigames.treasure[message.author.id].silverKeys) {
-		global.imouto.minigames.treasure[message.author.id].silverKeys = 0;
-		}
-			
-		global.imouto.minigames.treasure[message.author.id].silverKeys++;
-			
-		message.channel.send("You've obtained a silver key" + suffix);
-		
-	}
-}
-
-function unlockSilver(message) {
-	var lootList = global.imouto.loot;
-	
-	if (!global.imouto.minigames.treasure[message.author.id].silverChestsOpened) {
-		global.imouto.minigames.treasure[message.author.id].silverChestsOpened = 0;
-	}
-
-	global.imouto.minigames.treasure[message.author.id].silverChestsOpened++;
-
-	if(global.imouto.minigames.treasure[message.author.id].silverChestsOpened % 5 == 0) {
-
-		if(!global.imouto.minigames.treasure[message.author.id].goldKeys) {
-			global.imouto.minigames.treasure[message.author.id].goldKeys = 0;
-		}
-
-		global.imouto.minigames.treasure[message.author.id].goldKeys++;
-
-		message.channel.send("You've obtained a gold key" + suffix);
-	}
-	
-	if(lootList.length > 0) {
-		var itemObtained = Math.floor(Math.random()*lootList.length);
-		
-		if(!global.imouto.minigames.treasure[message.author.id].inventory) {
-			global.imouto.minigames.treasure[message.author.id].inventory = [];
-		}
-		
-		global.imouto.minigames.treasure[message.author.id].inventory.push(lootList[itemObtained]);
-		
-		message.channel.send("You've obtained: " + lootList[itemObtained]);
-		
-		if (!global.imouto.minigames.treasure[message.author.id].dragonBallCount) {
-			global.imouto.minigames.treasure[message.author.id].dragonBallCount = 0;
-		}
-		
-		if (global.dragonBallList.indexOf(lootList[itemObtained]) > -1) {
-			global.imouto.minigames.treasure[message.author.id].dragonBallCount++;
-		}
-		
-		if (!global.imouto.minigames.treasure[message.author.id].collectibleMaskCount) {
-			global.imouto.minigames.treasure[message.author.id].collectibleMasks = 0;
-		}
-		
-		if (global.collectibleMaskList.indexOf(lootList[itemObtained]) > -1) {
-			global.imouto.minigames.treasure[message.author.id].collectibleMasks++;
-		}
-		
-		
-		dragonBallCheck(message, itemObtained);
-		fierceDeityCheck(message, itemObtained);
-			
-		global.imouto.loot.splice(itemObtained, 1);
-	}
-	else {
-		message.channel.send("There are no items left in the silver chests!  You got an additional " + global.coinAmount + " copper" + suffix);
-		global.imouto.minigames.treasure[message.author.id].currency = Number(global.imouto.minigames.treasure[message.author.id].currency) + global.coinAmount;
-	}
-}
-
-
-function unlockGold(message) {
-	var goldLootList = global.imouto.goldLoot;
-	
-	if (!global.imouto.minigames.treasure[message.author.id].goldChestsOpened) {
-		global.imouto.minigames.treasure[message.author.id].goldChestsOpened = 0;
-	}
-
-	global.imouto.minigames.treasure[message.author.id].goldChestsOpened++;
-
-	/*if(global.imouto.minigames.treasure[message.author.id].goldChestsOpened % 5 == 0) {
-
-	}*/
-	
-	if(goldLootList.length > 0) {
-		var itemObtained = Math.floor(Math.random()*goldLootList.length);
-		
-		if(!global.imouto.minigames.treasure[message.author.id].inventory) {
-			global.imouto.minigames.treasure[message.author.id].inventory = [];
-		}
-		
-		global.imouto.minigames.treasure[message.author.id].inventory.push(goldLootList[itemObtained]);
-		
-		message.channel.send("You've obtained: " + goldLootList[itemObtained]);
-		
-		if (!global.imouto.minigames.treasure[message.author.id].triforceCount) {
-			global.imouto.minigames.treasure[message.author.id].triforceCount = 0;
-		}
-			
-		if (global.triforceList.indexOf(goldLootList[itemObtained]) > -1) {
-			global.imouto.minigames.treasure[message.author.id].triforceCount++;
-		}
-		
-		if (!global.imouto.minigames.treasure[message.author.id].theBossCount) {
-			global.imouto.minigames.treasure[message.author.id].theBossCount = 0;
-		}
-		
-		if (global.theBossList.indexOf(goldLootList[itemObtained]) > -1) {
-			global.imouto.minigames.treasure[message.author.id].theBossCount++;
-		}
-			
-		global.imouto.goldLoot.splice(itemObtained, 1);
-		triforceCheck(message, itemObtained);
-		theBossCheck(message, itemObtained);
-	}
-	else {
-		message.channel.send("There are no items left in the gold chests!  You got an additional " + global.coinAmount + " copper" + suffix);
-		global.imouto.minigames.treasure[message.author.id].currency = Number(global.imouto.minigames.treasure[message.author.id].currency) + global.coinAmount;
-	}
-}
-
-function unlockRoulette(message) {
-	
-	if(!global.imouto.rouletteLoot) {
-		global.imouto.routetteLoot = [];
-	}
-	
-	var rouletteLootList = global.imouto.rouletteLoot;
-	
-	if (!global.imouto.minigames.treasure[message.author.id].rouletteChestsOpened) {
-		global.imouto.minigames.treasure[message.author.id].rouletteChestsOpened = 0;
-	}
-
-	global.imouto.minigames.treasure[message.author.id].rouletteChestsOpened++;
-
-	/*if(global.imouto.minigames.treasure[message.author.id].goldChestsOpened % 5 == 0) {
-
-	}*/
-	
-  if (!rouletteLootList) { rouletteLootList = []; }
-	if(rouletteLootList.length > 0) {
-		var itemObtained = Math.floor(Math.random()*goldLootList.length);
-		
-		if(!global.imouto.minigames.treasure[message.author.id].inventory) {
-			global.imouto.minigames.treasure[message.author.id].inventory = [];
-		}
-		
-		global.imouto.minigames.treasure[message.author.id].inventory.push(rouletteLootList[itemObtained]);
-		
-		message.channel.send("You've obtained: " + rouletteLootList[itemObtained] + ".  The chest took " + global.rouletteGuesses + suffix);
-		
-			
-		global.imouto.rouletteLoot.splice(itemObtained, 1);
-	}
-	else {
-		message.channel.send("There are no items left in the roulette chests!  You got an additional " + global.coinAmount + " copper" + suffix);
-		global.imouto.minigames.treasure[message.author.id].currency = Number(global.imouto.minigames.treasure[message.author.id].currency) + global.coinAmount;
-	}
-	
-	global.rouletteGuess = 0;
-	global.rouletteGuesses = 0;
-}
-
-function correctChestLock(message) {
-	var unlockedDate = new Date();
-	var nextChestDate = new Date();
-	var chestTimer = Math.ceil(Math.random()*4) + 5;
-		
-	global.alertSent = false;
-			
-	message.channel.send("Congratulations, " + getNameForUser(message.author, message.guild) + suffix +
-	"\r\n \r\n You obtained " + global.coinAmount + " copper coins" + suffix);
-			
-	global.imouto.minigames.treasure[message.author.id].currency = Number(global.imouto.minigames.treasure[message.author.id].currency) + global.coinAmount;
-		
-
-	nextChestDate.setHours(unlockedDate.getHours() + chestTimer);
-
-	global.imouto.minigames.treasure.chestProperties.nextChest = nextChestDate;
-
-	if (global.chestType === "bronze") {
-		unlockBronze(message);
-	}
-	else if (global.chestType === "silver") {
-		unlockSilver(message);
-	}	
-	else if (global.chestType === "gold") {
-		unlockGold(message);
-	}
-	else if (global.chestType === "roulette") {
-		unlockRoulette(message);
-	}
-	
-	global.chestSummoned = false;
-	global.hintsRemaining = 4;
-}
-
-function failedChestLock(message, guess) {
-	
-	if (!global.imouto.minigames.treasure[message.author.id].lastGuess) {
-		global.imouto.minigames.treasure[message.author.id].lastGuess = 0;
-				
-	}
-		
-	var guessTime = new Date(global.imouto.minigames.treasure[message.author.id].lastGuess);
-	var userNextGuess = new Date();
-			
-	userNextGuess.setMinutes(userNextGuess.getMinutes() + 15);
-			
-	message.reply("You have guessed incorrectly.  Try again in 15 minutes" + suffix);
-	
-
-	if (global.chestLock > guess) {
-					message.channel.send("The number is greater than " + guess + suffix);
-				}
-				else {
-					message.channel.send("The number is less than " + guess + suffix);
-				}
-	
-		
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id];
-	}
-		
-	
-		
-	if (!global.imouto.minigames.treasure[message.author.id].nextGuess) {
-		global.imouto.minigames.treasure[message.author.id].nextGuess = 0;
-	}
-				
-	global.imouto.minigames.treasure[message.author.id].nextGuess = userNextGuess;
-	global.imouto.minigames.treasure[message.author.id].lastGuess = guessTime;
+	return "[unknown issue]"
 }
 
 function getNameForUser(user, guild) {
-  if (user === null || user === undefined) {
-    return "[Someone who left the channel]";
-  }
-  if (guild !== null && guild !== undefined) {
-    var foundUser = guild.members.cache.get(user.id);
-    if (foundUser && foundUser.nickname) {
-      return foundUser.nickname;
-    }
-  }
-  return user.username;
+	if (user === null || user === undefined) {
+ 		return "[Someone who left the channel]";
+	}
+  	if (guild !== null && guild !== undefined) {
+		var foundUser = guild.members.cache.get(user.id);
+		if (foundUser && foundUser.nickname) {
+			return foundUser.nickname;
+		}
+	}
+	//return getNameForUserID(user, guild);
+	return user.username;
 }
 
-function automaticTackle(message, offPlayer, defPlayer) {
-	message.reply("you have stolen the gnomeball" + suffix);
-	global.imouto.gnomeball = offPlayer.id;
-
+function gnomeballChangeHands(message, offPlayer, defPlayer) {
+	dbConnection.query(`UPDATE stats SET hasGnomeball = 0 WHERE discordID = ?`, [defPlayer.discordID]);
+	dbConnection.query(`UPDATE stats SET hasGnomeball = 1 WHERE discordID = ?`, [offPlayer.discordID]);
 }
 
 function tacklingLevelUp(message, offPlayer, expGain) {
-	var skillExp = Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingExp) + expGain;
-	var skillLevel = Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel);
+	var skillExp = offPlayer.tacklingExp + expGain;
+	var skillLevel = offPlayer.tacklingLevel;
 	var expRequired = (skillLevel + 1) * 2.5;
 	
 	if (skillLevel < 99) {
@@ -632,18 +166,15 @@ function tacklingLevelUp(message, offPlayer, expGain) {
 			expRequired += 2.5;
 		}
 	}
-	
-	global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel = skillLevel;
-	global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingExp = skillExp;
-	
-	saveImouto();
+	dbConnection.query(`UPDATE stats SET tacklingLevel = ?, tacklingExp = ? WHERE discordID = ?`,
+		[skillLevel, skillExp, offPlayer.discordID]);
 }
 
 function fortitudeLevelUp(message, defPlayer, expGain) {
-	var skillExp = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeExp) + 10;
-	var skillLevel = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel);
+	var skillExp = defPlayer.fortitudeExp + 10;
+	var skillLevel = defPlayer.fortitudeLevel;
 	var expRequired = (skillLevel + 1) * 2.5;
-	var userMaxHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth);
+	var userMaxHP = defPlayer.userMaxHealth;
 	
 	if (skillLevel < 99) {
 		while (skillExp > expRequired) {
@@ -654,22 +185,19 @@ function fortitudeLevelUp(message, defPlayer, expGain) {
 			
 		}
 	}
-	
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel = skillLevel;
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeExp = skillExp;
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth = (skillLevel + 1) * 2.5;
-	
-	saveImouto();
+
+	var maxHealth = (skillLevel + 1) * 2.5;
+	dbConnection.query(`UPDATE stats SET fortitudeLevel = ?, fortitudeExp = ?, userMaxHealth = ?  WHERE discordID = ?`,
+			[skillLevel, skillExp, maxHealth, defPlayer.discordID]);
 }
 
 function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	var newHP;
-	var currentHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userHealth);
-	var defMaxHP = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.userMaxHealth);
-	var levelDifference = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel) - 
-		Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel);
+	var currentHP = defPlayer.userHealth;
+	var defMaxHP = defPlayer.userMaxHealth;
+	var levelDifference = defPlayer.fortitudeLevel - offPlayer.tacklingLevel;
 	var expGained;
-	var defExpGain = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel) * 10;
+	var defExpGain = defPlayer.fortitudeLevel * 10;
 	var healDate = new Date();
 	
 	
@@ -682,41 +210,33 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	
 	if (newHP <= 0) {
 		newHP = 0;
-		global.imouto.gnomeball = message.author.id;
+		defPlayer.hasGnomeball = false;
+		offPlayer.hasGnomeball = true;
 		message.reply("stole the gnomeball" + suffix);
 		expGained = 10 + levelDifference;
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
 		healDate.setHours(healDate.getHours() + 1);
-		global.imouto.minigames.gnomeball[defPlayer.id].stats.startHealing = healDate;
-		if(currentHP <= 0) {
-			if(!global.imouto.minigames.gnomeball[message.author.id].yellowCards) {
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-				}
-				
-				var yellowCards = global.imouto.minigames.gnomeball[message.author.id].yellowCards;
-				message.channel.send("The referee gives you a yellow card for harassing an exhausted player" + suffix);
-				yellowCards++;
-				global.imouto.minigames.gnomeball[message.author.id].yellowCards = yellowCards;
-				
-				if(yellowCards >= 3) {
-					var redCardDate = new Date();
-					message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-					redCardDate.setDate(redCardDate.getDate() + 1);
-					global.imouto.minigames.gnomeball[message.author.id].redCardExpires = redCardDate;
-				}
-				
-				saveImouto();
+		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = 0  WHERE discordID = ?`,[healDate, defPlayer.discordID] ,function (error, results, fields) {
+			if(error) throw error; {
+				console.log(error);
+			}
+		});
+		if(currentHP <= 0) {	
+			message.channel.send("The referee gives you a yellow card for harassing an exhausted player" + suffix);
+			increaseYellowCards(message, offPlayer);
 		}
+		gnomeballChangeHands(message, offPlayer, defPlayer);
 	}
 	else {
 		message.channel.send(getNameForUser(defPlayer, message.guild) +
 			" is hit and is now at " + newHP + "/" + defMaxHP + suffix);
+		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = ? WHERE discordID = ?`, [healDate, newHP, defPlayer.discordID]);
 		tacklingLevelUp(message, offPlayer, 10);
 	}
 	
-	global.imouto.minigames.gnomeball[defPlayer.id].stats.userHealth = newHP;
+	defPlayer.userHealth = newHP; //make changeHealth(); function
+	
 	console.log(currentHP + " currentHP");
 	console.log(levelDifference + " levelDif");
 	console.log(defExpGain + " defExPgain");
@@ -725,23 +245,13 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 
 
 
-function attemptTackle(message, offPlayer, defPlayer) {
-	var tackling = Number(global.imouto.minigames.gnomeball[offPlayer.id].stats.tacklingLevel);
-	var fortitude = Number(global.imouto.minigames.gnomeball[defPlayer.id].stats.fortitudeLevel);
+function conductTackle(message, offPlayer, defPlayer) {
 	var offenseBuff = (Math.random()*1) + 1;
 	var defenseBuff = (Math.random()*0.5) + 1.5;
-	var damageDealt = (tackling * offenseBuff) - (fortitude * defenseBuff);
+	var damageDealt = (offPlayer.tacklingLevel * offenseBuff) - (defPlayer.fortitudeLevel * defenseBuff);
 	var tackleDate = new Date();
 	
-	if(!global.imouto.minigames.gnomeball[offPlayer.id]) {
-		global.imouto.minigames.gnomeball[offPlayer.id] = {};
-	}
-	
-	if(!global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle) {
-		global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle = new Date();
-	}
-	
-	var availableTackle = new Date(global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle);
+	var availableTackle = new Date(offPlayer.failedTackle);
 	
 	if (availableTackle < tackleDate) {
 		console.log("available tackle: " + availableTackle);
@@ -750,14 +260,15 @@ function attemptTackle(message, offPlayer, defPlayer) {
 			tackleSuccess(message, offPlayer, defPlayer, damageDealt);
 		}
 		else {
-			if(!global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle) {
-				global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle = new Date();
-			}
 			tacklingLevelUp(message, offPlayer, 5);
 			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 10 minutes" + suffix);
 			tackleDate.setMinutes(tackleDate.getMinutes() + 10);
-			global.imouto.minigames.gnomeball[offPlayer.id].stats.nextTackle = tackleDate;
-			//leveluphere
+			offPlayer.failedTackle = tackleDate;
+			dbConnection.query(`UPDATE stats SET failedTackle = ? WHERE discordID = ?`, [offPlayer.failedTackle,offPlayer.discordID], function (error, results, fields) {
+				if(error) throw error; {
+					console.log(error);
+				}
+			});
 		}
 	}
 	else {
@@ -769,94 +280,32 @@ function attemptTackle(message, offPlayer, defPlayer) {
 }
 
 function generateValues (bot, message, args) {
-	var placeholderDate = new Date();
-	
-	if (!global.imouto.minigames.gnomeball) {
-		global.imouto.minigames.gnomeball = {};
-	}
-	if (!global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id]) {
-		global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id] = {};
-	}
-	if (!global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id].stats) {
-		global.imouto.minigames.gnomeball[message.mentions.users.array()[0].id].stats = {totalTime: placeholderDate, longestTime: 0,
-			startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-		fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-	}
+
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = '${message.author.id}'`, (error, results) => {
+		if(error) {
+			console.log(error);
+		}
+		if(!results.length) {
+			dbConnection.query(`INSERT INTO stats (discordID) VALUES ('${message.author.id}')`);
+			console.log('New user has been registered into stats as ' + message.author.id);
+		}
+		else{
+			console.log('user already registered in database');
+		}
+	});
 }
 
-/*commands.fix = function(bot, message, args) {
-	
-//	USE THIS TO FIX BROKEN USERS IN TREASURE MINIGAME.
-//  DELETE USER'S LASTGUESS AND NEXTGUESS FROM JSON FILE
-
-		if (!global.imouto.minigames.treasure[message.author.id].lastGuess) {
-		global.imouto.minigames.treasure[message.author.id].lastGuess = 0;
-				
-		}
-		
-		if (!global.imouto.minigames.treasure[message.author.id].nextGuess) {
-			global.imouto.minigames.treasure[message.author.id].nextGuess = 0;
-		}
-		
-	var guessTime = new Date(global.imouto.minigames.treasure[message.author.id].lastGuess);
-	var userNextGuess = new Date();
-			
-	userNextGuess.setMinutes(guessTime.getMinutes() + 15);
-			
-	message.reply("You have guessed incorrectly.  Try again in 15 minutes" + suffix);
-		
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id];
-	}
-		
-	
-		
-	if (!global.imouto.minigames.treasure[message.author.id].nextGuess) {
-		global.imouto.minigames.treasure[message.author.id].nextGuess = 0;
-	}
-				
-	global.imouto.minigames.treasure[message.author.id].nextGuess = userNextGuess;
-	global.imouto.minigames.treasure[message.author.id].lastGuess = guessTime;
-	
-	saveImouto();
-	
-}*/
+commands.fix = function(bot, message, args) {
+//COMMAND RESERVED FOR DATA ERRORS	
+}
 
 commands.test = function(bot, message, args) {
-	/*var mysql = require('mysql');
-	var dbLogin			= 	require('./dbLogin.json');
-	var dbConnection 	= 	mysql.createConnection(dbLogin);
-	
-	dbConnection.connect();
-	
-	dbConnection.query('SELECT username FROM users', function (error, results, fields) {
-	if (error) throw error;
-	message.channel.send("The latest registered user is: " + results[0].username + suffix);
-	
-});*/
-
+//COMMAND RESERVED FOR FUNCTION TESTS
 }
 
 commands.register = function(bot, message, args) {
 	var registrant = message.author.id;
 	var storedUsername = message.author;
-	/*var bcrypt = require('bcrypt');
-	var hash;
-	
-	var queryLine = 'SELECT password FROM users WHERE email = ?'; 
-	
-	dbConnection.query(queryLine, [args[1]], function (error, results, fields) {
-		if (error) throw error;
-		message.channel.send("User hash is: " + results[0].password + suffix);
-		hash = results[0].password;
-	});
-
-	hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
-	bcrypt.compare("secret", hash, function(err, res) {
-    console.log(res);
-	});*/
-	
-	var queryLine = 'SELECT username FROM users WHERE email = ? AND discordID IS NULL'; 
 	if(args[0]) {
 		dbConnection.query(queryLine, [args[0]], function (error, results, fields) {
 		
@@ -987,7 +436,7 @@ commands.ginandjuice = function(bot, message, args) {
 }
 
 commands.mf = function(bot, message, args) {
-	message.channel.send({file: ["./Imouto-chan/Images/lastorderrage.gif"]});
+	message.channel.send({files: ["./Imouto-chan/Images/lastorderrage.gif"]});
 }
 
 commands.ring = function(bot, message, args) {
@@ -1104,7 +553,7 @@ commands.teehee = function(bot, message, args) {
 commands.smug = function(bot, message, args) {
 	const commandName = 'smug';
 	var filePath	  = "Smug/";
-	const fileList 	  = ['smug0.jpg','smug1.jpg','smug2.jpg','smug3.jpg','smug4.jpg','smug5.png'];
+	const fileList 	  = ['smug0.jpg','smug1.jpg','smug2.jpg','smug3.jpg','smug4.jpg','smug5.png', 'smug6.jpg', 'smug7.jpg'];
 	
 	getImage(bot, message, args, fileList, filePath, commandName);
 }
@@ -1318,255 +767,24 @@ commands.stopzombie = function(bot, message, args) {
 }
 
 commands.unlock = function(bot, message, args) {
-	var currentGuess = new Date();
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	if (!global.imouto.minigames.treasure[message.author.id].silverKeys) {
-		global.imouto.minigames.treasure[message.author.id].silverKeys = 0;
-	}
-	if (!global.imouto.minigames.treasure[message.author.id].goldKeys) {
-		global.imouto.minigames.treasure[message.author.id].goldKeys = 0;
-	}
-	
-	var silverKeyCount = global.imouto.minigames.treasure[message.author.id].silverKeys;
-	var goldKeyCount = global.imouto.minigames.treasure[message.author.id].goldKeys;
-	
-	if (global.chestSummoned === true) {
-		if (args[0] === "key") {
-			if (global.chestType === "silver") {
-				if (silverKeyCount > 0) {
-					global.imouto.minigames.treasure[message.author.id].silverKeys--;
-					correctChestLock(message);
-				}
-				else {
-					message.channel.send("You don't have any silver keys" + suffix);
-				}
-			}
-			else if (global.chestType === "gold") {
-				if  (goldKeyCount > 0) {
-					global.imouto.minigames.treasure[message.author.id].goldKeys--;
-					correctChestLock(message);
-				}
-				else {
-					message.channel.send("You don't have any gold keys" + suffix);
-				}
-			}
-			else {
-				message.channel.send("This chest type doesn't take keys" + suffix);
-			}
-			saveImouto();
-		}
-		else {
-			var guessedNumber = parseInt(args[0]);
-			
-			if(global.chestType === 'roulette') {
-				if (args[0]) {
-					message.channel.send("Roulette chests only use $unlock and don't require a number" + suffix);
-				}
-				
-				guessedNumber = global.rouletteGuess;
-				global.rouletteGuesses++;
-				var gap = global.chestLock - guessedNumber;
-				
-				message.channel.send("You have guessed " + guessedNumber + suffix);
-				
-				if (gap >= 10) {
-					var skipChance = Math.random()*gap;
-					if (skipChance >= 10) {
-						global.rouletteGuess += Math.floor(Math.random()*gap);
-					}
-				}
-				else {
-					global.rouletteGuess++;
-				}
-				
-				if (guessedNumber >= global.chestLock) {
-					guessedNumber = global.chestLock;
-				}
-			}
-				
-			if (!global.imouto.minigames.treasure[message.author.id]) {
-				global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-				"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0};
-			
-			}
 
-			var upcomingGuess = new Date(global.imouto.minigames.treasure[message.author.id].nextGuess);
-			
-			var upcomingMinutes = upcomingGuess;
-			var currentMinutes = currentGuess;
-			
-			var diff = Math.abs(upcomingGuess - currentGuess);
-			var minutesLeft = Math.floor((diff/1000)/60);
-			
-			var currentMillis = currentGuess.getTime();
-			var upcomingMillis = upcomingGuess.getTime();
-			
-			if (upcomingGuess < currentGuess || guessedNumber < 0 || guessedNumber > 99) {
-				if (isNaN(guessedNumber)) {
-					message.channel.send("Please enter a number from 0-99" + suffix);
-				}
-				else if (guessedNumber == global.chestLock) {
-					correctChestLock(message);
-				}
-				else {
-					failedChestLock(message, guessedNumber);
-				}
-				saveImouto();
-			}
-			else {
-				message.channel.send("You still have " + minutesLeft + " minutes until you can try again" + suffix);
-			}
-		}
-	}
-	else {
-		message.channel.send("There is no chest to unlock");
-	}
 }
 
 
 commands.hint = function(bot, message, args) {
-	console.log("hint");
-	
-	if (global.chestSummoned == true) {
-		if (global.hintsRemaining > 0) {
-			var hintTestNumber = Math.floor(Math.random()*100);
-			
-			console.log(hintTestNumber);
-			
-			switch(global.hintsRemaining) {
-				case 4 : lockGreaterLesser(message, hintTestNumber);
-							break;
-				case 1: showOneDigitOnly(message, global.chestLock);
-							break;
-				case 3: showOneDigitEvenOdd(message, global.chestLock);
-							break;
-				case 2: lockNumberRange(message, global.chestLock);
-							break;		
-			}
-			
-			global.hintsRemaining--;
-			global.coinAmount = Math.floor(coinAmount * (4/5));
-		}
-		else {
-			message.channel.send("There are no remaining hints");
-		}
-	}
-	else {
-		message.channel.send("There is no chest to unlock right now" + suffix) ;
-	}
+
 }
 
 commands.wallet = function(bot, message, args) {
-	var silverKeyAmount = "";
-	var goldKeyAmount = "";
 
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
-	var copperAmount = Math.floor(userCurrency % 1000);
-	var copperString = "";
-	var silverAmount = Math.floor((userCurrency / 1000) % 1000);
-	var silverString = "";
-	var goldAmount = Math.floor((userCurrency / 1000000) % 1000);
-	var goldString = "";
-	var platinumString = "";
-	var platinumAmount = Math.floor(userCurrency / 1000000000);
-	
-	if (platinumAmount > 0) {
-		platinumString = " " + platinumAmount + " platinum";
-	}
-	
-	if (goldAmount > 0) {
-		goldString = " " + goldAmount + " gold";
-	}
-	
-	if (silverAmount > 0) {
-		silverString = " " + silverAmount + " silver";
-	}
-	
-	if (copperAmount > 0 && userCurrency > 0) {
-		copperString = " " + copperAmount + " copper";
-	}
-	
-	if(userCurrency === 0) {
-		copperString = " 0 copper";
-	}
-	
-	
-	if (!global.imouto.minigames.treasure[message.author.id].silverKeys) {
-		global.imouto.minigames.treasure[message.author.id].silverKeys = 0;
-	}
-	if(!global.imouto.minigames.treasure[message.author.id].goldKeys) {
-		global.imouto.minigames.treasure[message.author.id].goldKeys = 0;
-	}
-
-	var silverKeyCount = Number(global.imouto.minigames.treasure[message.author.id].silverKeys);
-	var goldKeyCount = Number(global.imouto.minigames.treasure[message.author.id].goldKeys);
-
-	if (silverKeyCount > 0) {
-		silverKeyAmount = "\r\nSilver Keys: " + silverKeyCount;
-	}
-	
-	if (goldKeyCount > 0) {
-		goldKeyAmount = "\r\nGold Keys: " + goldKeyCount;
-	}
-	
-	message.channel.send("You have" + platinumString +
-		goldString + silverString + copperString + suffix + silverKeyAmount + goldKeyAmount);
-	
-	saveImouto();
 }
 
 commands.inventory = function(bot, message, args) {
-	var lootList = [];
-	var inventoryMap = {};
-	var finalList = [];
-	
-	if (!global.imouto.minigames.treasure[message.author.id].inventory) {
-		global.imouto.minigames.treasure[message.author.id].inventory = [];
-	}
-	
-	var inventoryList = global.imouto.minigames.treasure[message.author.id].inventory;
-	
-	if (inventoryList.length > 0) {
-		for(var item in inventoryList) {
-			if(!inventoryMap[inventoryList[item]]) {
-				inventoryMap[inventoryList[item]] = 1;
-				lootList.push(inventoryList[item]);
-			}
-			else {
-				inventoryMap[inventoryList[item]]++;
-			}
-		}
-			
-		for(var item in lootList) {
-			if(inventoryMap[inventoryList[item]] > 1) {
-				finalList.push(lootList[item] + " x " + inventoryMap[lootList[item]]);
-			}
-			else {
-				finalList.push(lootList[item]);
-			}
-		}
 
-		message.reply("your inventory has: \r\n" + finalList.join("\n"));
-	}
-	else {
-		message.reply("you haven't gotten any items yet" + suffix);
-	}
-	
-	console.log(inventoryMap);
-	saveImouto();
 }
 
 commands.describe = function(bot, message, args) {
-	var itemName = args.join(" ");
+	/*var itemName = args.join(" ");
 	if (!global.items[itemName]) {
 		message.reply("that isn't a valid item name");
 	}
@@ -1575,7 +793,7 @@ commands.describe = function(bot, message, args) {
 	}
 	else {
 		message.reply("you don't have a " + itemName + suffix);
-	}
+	}*/
 }
 
 commands.badges = function(bot, message, args) {
@@ -1607,125 +825,171 @@ commands.badges = function(bot, message, args) {
 commands.pass = function(bot, message, args) {
 	
 	if (message.channel.id === '814148824989171772') {
+		var passingPlayer = {
+			username: message.author.username,
+			nickname: message.author.nickname,
+			discordID: message.author.id,
+			hasGnomeball: false
+		};
+		var receivingPlayer ={
+			username: message.mentions.users.array()[0].username,
+			nickname: message.mentions.users.array()[0].nickname,
+			discordID: message.mentions.users.array()[0].id,
+			hasGnomeball: false
+		};
+		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
+			console.log("results: " + results);
+			if(results) {
+				if (results[0].hasGnomeball === 1) {
 	
-	if (!global.imouto.gnomeball) {
-		global.imouto.gnomeball = message.author.id;
-	}
+					if (message.mentions.users.size > 1) {
+						message.channel.send("You can only pass to one person" + suffix);
+					}
+					else if (message.mentions.users.size === 0 || message.mentions.users.array()[0].presence.status === "offline") {
+						message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
+							"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
 	
-	if (global.imouto.gnomeball == message.author.id) {
-		if (message.mentions.users.size === 0) {
-			message.channel.send("Use @user to pass the gnomeball" + suffix);
-		 }
-		 else if (message.mentions.users.size > 1) {
-			message.channel.send("You can only pass to one person" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].id === message.author.id) {
-			message.channel.send("Don't be a ballhog" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
-			message.channel.send("Bots don't know how to play Gnomeball" + suffix);
-		 }
-		 else if (message.mentions.users.array()[0].status === "offline") {
-			 message.channel.send(getNameForUser(message.author, message.guild) + " throws the gnomeball out into the open" + suffix +
-				"\r\nA Gnomeball Referee throws it back to you and mumbles something about bug abusers" + suffix);
-		 }
-		 else {
-			var newBallOwner = message.mentions.users.array()[0].id;
-
-			message.channel.send(getNameForUser(message.author, message.guild) + " passes the gnomeball to "
-				+ getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
-				
-			global.imouto.gnomeball = newBallOwner;
-		 }
-	}
-	else {
-		message.channel.send("You don't have the gnomeball " + getNameForUser(message.author, message.guild) + suffix);
-	}
+					}
+					else if (message.mentions.users.array()[0].id === message.author.id) {
+						message.channel.send("Don't be a ballhog" + suffix);
+					}
+					else if (message.mentions.users.array()[0].id=== '209166316035244033' || message.mentions.users.array()[0].id === '211522387471106048') {
+						message.channel.send("Bots don't know how to play Gnomeball" + suffix);
+					}
+					else {
+						receivingPlayer.discordID = message.mentions.users.array()[0].id;
+						message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
+							getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
+						gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+					}
+				}
+				else {
+					message.reply("You don't have the gnomeball" + suffix);
+					console.log("Tried to pass gnomeball but didn't have it: " + results);
+					console.log(results);
+					console.log("results printed: " + results[0]);
+				}
+			}
+			else {
+				message.reply("You don't have the gnomeball" + suffix);
+			}
 	
-	saveImouto();
+		});
 	}
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
 	}
 }
 
-commands.tackle = function(bot, message, args) {
-	
-	if (message.channel.id === '814148824989171772') {
-	var placeholderDate = new Date();
-	
-	var offPlayer = message.author;
-	var defPlayer = message.mentions.users.array()[0];
-	
-	var attemptedTackleDate = new Date();
-	
-	
-	if (!global.imouto.minigames.gnomeball[message.author.id].redCardExpires) {
-		global.imouto.minigames.gnomeball[message.author.id].redCardExpires = 0;
+function increaseYellowCards(message, offPlayer) {
+	if (offPlayer.yellowCards >= 2) {
+		var banDate = new Date();
+		banDate.setHours(banDate.getHours() + 8);
+		dbConnection.query(`UPDATE stats SET yellowCards = 0 WHERE discordID = ?`, [offPlayer.discordID]);
+		message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 8 hours");
+		dbConnection.query(`UPDATE stats SET unbanDate = ? WHERE discordID = ?`, [banDate, offPlayer.discordID]);
 	}
-	
-	var banDate = new Date(global.imouto.minigames.gnomeball[message.author.id].redCardExpires);
+	else {
+		dbConnection.query(`UPDATE stats SET yellowCards = yellowCards + 1 WHERE discordID = ?`,[offPlayer.discordID]);
+		message.reply("A referee hands you a yellow card" + suffix);
+	}	
+}
+
+function attemptTackle(message, offPlayer, defPlayer) {
+	var attemptedTackleDate = new Date();
+	var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object
 	
 	if(banDate > attemptedTackleDate) {
 		message.reply("you are currently banned from gnomeball" + suffix);
 	}
-	else if (message.mentions.users.size === 0) {
-		message.channel.send("Use @user to tackle a player" + suffix);
-	}
 	else {
-		
-		if (!imouto.minigames.gnomeball[defPlayer.id]) {
-		imouto.minigames.gnomeball[defPlayer.id] = {};
-		}
-		
-		if (!imouto.minigames.gnomeball[defPlayer.id].stats) {
-			imouto.minigames.gnomeball[defPlayer.id].stats = {totalTime: placeholderDate, longestTime: 0,
-				startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-			fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-		}
-		
-		if(Number(imouto.minigames.gnomeball[offPlayer.id].stats.userHealth) > 0) {
-		
-			if (defPlayer.id === message.author.id) {
+		if (Number(offPlayer.userHealth) > 0) {
+			if (defPlayer.discordID === message.author.id) {
 				message.channel.send("You cannot tackle yourself" + suffix);
 			}
-			else if (global.imouto.gnomeball === defPlayer.id) {
-				if (defPlayer.status !== "offline") {
-					attemptTackle(message, offPlayer, defPlayer);
+			else if (defPlayer.hasGnomeball) { //takes defending player ID from defending player object
+				if (message.mentions.users.array()[0].status !== "offline") {
+					conductTackle(message, offPlayer, defPlayer);
 				}
 				else {
-					automaticTackle(message, offPlayer, defPlayer);
+					gnomeballChangeHands(message, offPlayer, defPlayer);
 				}
-				
-				saveImouto();
 			}
 			else {
-				
-				if(!global.imouto.minigames.gnomeball[message.author.id].yellowCards) {
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-				}
-				
-				var yellowCards = global.imouto.minigames.gnomeball[message.author.id].yellowCards;
-				message.channel.send(getNameForUser(defPlayer, message.guild) + " doesn't have the gnomeball.\r\n" +
-					"The referee gives you a yellow card" + suffix);
-				yellowCards++;
-				global.imouto.minigames.gnomeball[message.author.id].yellowCards = yellowCards;
-				
-				if(yellowCards >= 3) {
-					var redCardDate = new Date();
-					message.reply("you've gotten 3 yellow cards.  The referee hands you a red card and bans you from gnomeball for 24 hours");
-					global.imouto.minigames.gnomeball[message.author.id].yellowCards = 0;
-					redCardDate.setDate(redCardDate.getDate() + 1);
-					global.imouto.minigames.gnomeball[message.author.id].redCardExpires = redCardDate;
-				}
-				
-				saveImouto();
+					message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball" + suffix);
+					increaseYellowCards(message, offPlayer);			
 			}
 		}
 		else {
-			message.reply("you are too tired to tackle right now" + suffix);
+			message.reply("you are too tired to tackle right now" + suffix)
+			message.reply("You have " + offPlayer.userHealth + "HP" + suffix);
 		}
 	}
+}
+
+function getTackleStats(bot, message, args){
+	var offPlayer = {
+			discordID: message.author.id,
+			userHealth: 0,
+			tacklingLevel: 0,
+			tacklingExp: 0,
+			yellowCards: 0,
+			unbanDate: null,
+			hasGnomeball: false,
+			failedTackle: null
+	}; //Could likely just be empty
+						
+	var defPlayer = {
+			discordID: message.mentions.users.array()[0],
+			userHealth: 0,
+			userMaxHealth: 0,
+			fortitudeLevel: 0,
+			fortitudeExp: 0,
+			hasGnomeball: false
+	};//as above. Empty both after testing.
+	console.log("IS IT THIS? " + defPlayer.discordID);
+	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
+	var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
+	
+	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) { //query for Offensive Player
+
+		if (error) throw error; {
+			console.log(error);
+		}
+		offPlayer.discordID 	= message.author.id;
+		offPlayer.userHealth 	= results[0].userHealth;
+		offPlayer.tacklingLevel = results[0].tacklingLevel;
+		offPlayer.tacklingExp 	= results[0].tacklingExp;
+		offPlayer.yellowCards 	= results[0].yellowCards;
+		offPlayer.unbanDate	= results[0].unbanDate;
+		offPlayer.failedTackle 	= results[0].failedTackle;
+		console.log("offPlayer: " + offPlayer.userHealth);
+
+		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
+
+			if(error) throw error; {
+				console.log(error)
+			}
+			defPlayer.discordID = message.mentions.users.array()[0].id;
+			console.log("OR IS IT THIS? " + defPlayer.discordID);
+			defPlayer.userHealth = results[0].userHealth;
+			defPlayer.userMaxHealth = results[0].userMaxHealth;
+			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
+			defPlayer.fortitudeExp = results[0].fortitudeExp;
+			defPlayer.hasGnomeball = results[0].hasGnomeball;
+			attemptTackle(message, offPlayer, defPlayer);
+		});
+	});
+}
+
+commands.tackle = function(bot, message, args) {
+	if (message.channel.id === '814148824989171772') {
+		if(message.mentions.users.size === 0) {
+			message.reply("use $tackle @user to tackle" + suffix);
+		}
+		else {
+			getTackleStats(bot, message, args);
+		}
 	}
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
@@ -1733,46 +997,28 @@ commands.tackle = function(bot, message, args) {
 }
 
 commands.stats = function(bot, message, args) {
-	var placeholderDate = new Date();
+	var userHealthValue;
+	var userMaxHealth;
+	var tacklingValue;
 	
-	if (!global.imouto.minigames.gnomeball[message.author.id]) {
-		global.imouto.minigames.gnomeball[message.author.id] = {};
+	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
+	dbConnection.query(queryLine, [args[0]], function (error, results, fields) {
+	
+	if (error) throw error; {
+		console.log(error);
 	}
-		
-	if (!global.imouto.minigames.gnomeball[message.author.id].stats) {
-		global.imouto.minigames.gnomeball[message.author.id].stats = {totalTime: placeholderDate, longestTime: 0,
-			startTime: placeholderDate, nextTackle: placeholderDate, tacklingLevel: 1, tacklingExp: 0, passingLevel: 1, passingExp: 0,
-		fortitudeLevel: 1, fortitudeExp: 0, startHealing: placeholderDate, userHealth: 5, userMaxHealth: 5}
-	}
-	
-	if (!imouto.minigames.gnomeball[message.author.id].stats.maxTackling) {
-		imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxPassingLevel = 1;
-		imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel = 1;
-	}
-	
-	var tacklingValue = global.imouto.minigames.gnomeball[message.author.id].stats.tacklingLevel;
-	var fortitudeValue = global.imouto.minigames.gnomeball[message.author.id].stats.fortitudeLevel;
-	var passingValue = (tacklingValue+fortitudeValue)/2;
-	
-	global.imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel = tacklingValue;
-	global.imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel = fortitudeValue;
-	
-	var maxTacklingValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxTacklingLevel;
-	var maxFortitudeValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxFortitudeLevel;
-	var maxPassingValue = global.imouto.minigames.gnomeball[message.author.id].stats.maxPassingLevel;
-	
-	var gardeningValue = global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel;
-	
-	var userHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userHealth;
-	var userMaxHealthValue = global.imouto.minigames.gnomeball[message.author.id].stats.userMaxHealth;
-	
-	global.imouto.minigames.gnomeball[message.author.id].stats.passingLevel = passingValue;
-	
-	message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + userHealthValue + "/" + userMaxHealthValue + "\r\nTackling: " +
-		tacklingValue + "/" + maxTacklingValue + "\r\nPassing: " + passingValue + "/" + passingValue + "\r\nFortitude: " +
-		fortitudeValue + "/" + maxFortitudeValue + "\r\nGardening: " + gardeningValue);
 
+	});
+	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) {
+		if (error) throw error; {
+			console.log(error);
+		}
+	
+		message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + results[0].userHealth + "/" + results[0].userMaxHealth + "\r\nTackling: " +
+			results[0].tacklingLevel + "/" + results[0].tacklingLevel + "\r\nPassing: " + results[0].passingLevel + "/" + results[0].passingLevel + "\r\nFortitude: " +
+			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate);
+		console.log(results[0]);
+	});
 }
 
 commands.poll = function(bot,message,args) {
