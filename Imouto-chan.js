@@ -306,9 +306,9 @@ function healUser(message) {
 		if(userMaxHP > userHP) {
 			if(currentTime > healingTime) {
 				var diff = Math.abs(Number(healingTime) - Number(currentTime));
-				var hourDiff = Math.floor(((diff/1000)/60)/60);
+				var minDiff = Math.floor((diff/1000)/60);
 				
-				userHP += (hourDiff * 50);
+				userHP += (minDiff * (userMaxHP/10));
 				
 				if(userHP > userMaxHP) {
 					userHP = userMaxHP;
