@@ -134,6 +134,7 @@ pet.help = function(bot, message, args) {
 }
 
 pet.incubate = function(bot, message, args) {
+	//NEEDS UPDATED
 	var eggName = args.join(" ");
 	var dateOfIncubation = new Date();
 	var hatchingTime = new Date();
@@ -175,6 +176,7 @@ pet.feed = function(bot, message, args) {
 }
 
 pet.pet = function(bot, message, args) {
+	//NEEDS UPDATED
 	if(global.imouto.minigames.pets[message.author.id].hasPet === true) {
 		if(!global.imouto.minigames.pets[message.author.id].lastPet) {
 			global.imouto.minigames.pets[message.author.id].lastPet = 0;
@@ -231,7 +233,7 @@ pet.pet = function(bot, message, args) {
 }
 
 pet.name = function(bot, message, args) {
-	
+	//NEEDS UPDATED
 	if(args[0] === undefined) {
 		message.reply("use $name <name>" + suffix);
 	}
@@ -254,6 +256,7 @@ pet.name = function(bot, message, args) {
 }
 
 pet.freeze = function(bot, message, args) {
+	//NEEDS UPDATED
 	var totalTubes = global.imouto.minigames.pets[message.author.id].cryotubeCount;
 	var filledTubes = global.imouto.minigames.pets[message.author.id].pet.frozenPets.frozenNames.length;
 	var emptyTubes = totalTubes - filledTubes;
@@ -296,6 +299,7 @@ pet.freeze = function(bot, message, args) {
 
 
 pet.thaw = function(bot, message, args) {
+	//NEEDS UPDATED
 	var totalTubes = global.imouto.minigames.pets[message.author.id].cryotubeCount;
 	var filledTubes = global.imouto.minigames.pets[message.author.id].pet.frozenPets.frozenNames.length;
 	var emptyTubes = totalTubes - filledTubes;
@@ -355,6 +359,7 @@ pet.thaw = function(bot, message, args) {
 }
 
 pet.check = function(bot, message, args) {
+	//NEEDS UPDATED
 	if(global.imouto.minigames.pets[message.author.id].hasPet === true) {
 		message.reply("Your pet:\r\n" +
 			"Name: " + global.imouto.minigames.pets[message.author.id].pet.activePet.petName +
@@ -372,6 +377,7 @@ pet.check = function(bot, message, args) {
 }
 
 pet.enter = function(bot, message, args) {
+	//NEEDS UPDATED
 	message.reply("please look forward to it" + suffix);
 	if(!global.imouto.minigames.pets.eventParticipants) {
 		global.imouto.minigames.pets.eventParticipants = [];
@@ -393,7 +399,7 @@ pet.enter = function(bot, message, args) {
 }
 
 pet.train = function(bot, message, args) {
-	
+	//NEEDS UPDATED
 	if(global.imouto.minigames.pets[message.author.id].hasPet === true) {
 		if(!global.imouto.minigames.pets[message.author.id].lastTrain) {
 			global.imouto.minigames.pets[message.author.id].lastTrain = 0;
@@ -524,53 +530,61 @@ pet.train = function(bot, message, args) {
 	}
 }
 
-pet.plant = function(bot, message, args) {
-	var seedName = args.join(" ");
-	var plantingDate = new Date();
-	var growingTime = new Date();
-	var landPlots = global.imouto.minigames.gardening[message.author.id].landPlots;
-	var usedPlots = global.imouto.minigames.gardening[message.author.id].usedPlots;
-	var availablePlots =  landPlots - usedPlots;
-	
-	
-	
-	
-if(!global.items[seedName]) {
-	message.reply("invalid");
-}	else if(global.items[seedName].itemType === "seed") {
-		var levelRequirement = global.items[seedName].levelRequired;
-		var growthTime = global.items[seedName].growthTime;
-		
-		if(global.imouto.minigames.gnomeball[message.author.id].stats.gardeningLevel >= levelRequirement) {
-			if(availablePlots > 0) {
-				if (global.items[seedName].itemType === "seed") {
-					if(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(seedName) > -1) {
-						message.reply("you plant the " + seedName + " into the ground" + suffix);
-						global.imouto.minigames.treasure[message.author.id].inventory.splice(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(seedName), 1);
-						growingTime.setHours(plantingDate.getHours() + growthTime);
-						global.imouto.minigames.gardening[message.author.id].plantedSeeds.push([seedName, growingTime]);
-						global.imouto.minigames.gardening[message.author.id].usedPlots++;
-						saveImouto();
-					}
-					else {
-						message.reply("you don't have any " + seedName + "s" + suffix);
-					}
-				}
-				else {
-					message.reply("that isn't a seed" + suffix);
-				}
-			}
-			else {
-				message.reply("you don't have any available land plots" + suffix);
-			}
+function plantSeed(message, plot, plotDate, seedID, seedDate) {
+	dbConnection.query(`UPDATE garden SET ` + plot +` = ? ` + plotDate + ` = ? WHERE id = ?`,
+		[seedID, seedDate, message.author.id]); //plants seed into passed plot with timer
+}
+
+function checkPlots(message, gardeningLevel, seedID, seedDate) {
+	//checks for empty plots and checks level
+	dbConnection.query(`SELECT * FROM garden WHERE id = ?`, [message.author.id] function (error, results, fields) {
+		if (results[0].plot1 === null) {
+			plantSeed(message, 'plot1', 'plot1Date', seedID, seedDate);
+		}
+		else if (results[0].plot2 === null && gardeningLevel >= 10) {
+			plantSeed(message, 'plot2', 'plot2Date', seedID, seedDate);
+		}
+		else if (results[0].plot3 === null && gardeningLevel >= 20) {
+			plantSeed(message, 'plot3', 'plot3Date', seedID, seedDate);
+		}
+		else if (results[0].plot4 === null && gardeningLevel >= 30) {
+			plantSeed(message, 'plot4', 'plot4Date', seedID, seedDate);
+		}
+		else if (results[0].plot5 === null && gardeningLevel >= 40) {
+			plantSeed(message, 'plot5', 'plot5Date', seedID, seedDate));
 		}
 		else {
-			message.reply("you need level " + levelRequirement + " gardening to plant that seed" + suffix);
+			message.reply("You don't have any available plots" + suffix);
 		}
-	}
-	else {
-		message.reply("use $plant <seed name> to plant a seed" + suffix);
-	}
+	});
+}
+
+pet.plant = function(bot, message, args) {
+	var seedName = args.join(" ");
+	var gardeningLevel;
+	dbConnection.query(`SELECT gardeningLevel FROM stats WHERE discordID = ?`, [message.author.id], function (error, results, fields) {
+		gardeningLevel = results[0].gardeningLevel;
+		dbConnection.query(`SELECT * FROM inventory WHERE name = ? AND id = ?`, [seedName, message.author.id], function (error,
+			results, fields) {
+			if(!error) {
+				dbConnection.query(`SELECT * FROM items WHERE type = 'seed' AND name = ?`, [seedName], function (error, results, fields) {
+					if(!error) {
+						var seedID = results[0].id;
+						var seedDate = new Date()
+						seedDate.setHours(seedDate.getHours() + results[0].itemDate);
+	
+						checkPlots(message, gardeningLevel, seedID, seedDate);
+					}
+					else {
+						message.reply("That's not a plantable item" + suffix);
+					}
+				});
+			}
+			else {
+				message.reply("You don't have a " + seedName + suffix);
+			}
+		});
+	});
 }
 
 pet.dropoff = function(bot, message, args) {

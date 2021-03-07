@@ -346,6 +346,7 @@ function getTackleStats(bot, message, args){
 			username: message.author.username,
 			nickname: message.author.nickname,
 			discordID: message.author.id,
+			id: message.author.id,
 			userHealth: 0,
 			tacklingLevel: 0,
 			tacklingExp: 0,
@@ -359,6 +360,7 @@ function getTackleStats(bot, message, args){
 			username: message.mentions.users.array()[0].username,
 			nickname: message.mentions.users.array()[0].nickname,
 			discordID: message.mentions.users.array()[0],
+			id: message.mentions.users.array()[0].id,
 			userHealth: 0,
 			userMaxHealth: 0,
 			fortitudeLevel: 0,
@@ -421,12 +423,14 @@ commands.pass = function(bot, message, args) {
 			username: message.author.username,
 			nickname: message.author.nickname,
 			discordID: message.author.id,
+			id: message.author.id,
 			hasGnomeball: false
 		};
 		var receivingPlayer ={
 			username: message.mentions.users.array()[0].username,
 			nickname: message.mentions.users.array()[0].nickname,
 			discordID: message.mentions.users.array()[0].id,
+			id: message.mentions.users.array()[0].id,
 			hasGnomeball: false
 		};
 		dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [passingPlayer.discordID], function (error, results, fields) {
