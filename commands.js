@@ -1,14 +1,14 @@
-var commands = {};
-var fs = require('fs');
-var commandDate = new Date();
-var imoutoFilePath	=	"./Imouto-chan/imouto.json";
-var mysql = require('mysql');
-var dbLogin			= 	require('./dbLogin.json');
-var dbConnection 	= 	mysql.createConnection(dbLogin);
+var commands		= {};
+var fs 			= require('fs');
+var commandDate		= new Date();
+var imoutoFilePath	= "./Imouto-chan/imouto.json";
+var mysql		= require('mysql');
+var dbLogin		= require('./dbLogin.json');
+var dbConnection 	= mysql.createConnection(dbLogin);
 
 var urlPath 		= './Imouto-chan/';
 var imagePath 		= './Imouto-chan/Images/';
-var suffix = ', desu!';
+var suffix		= ', desu!';
 
 /*function cleanString(x) {
 	return x.replace(/[^A-Za-z0-9_]/g,"");
@@ -1121,7 +1121,7 @@ commands.role = function(bot,message,args) {
 		if (message.guild.roles.cache.find(role => role.name === args[roleName].toLowerCase())) {
 			var roleID = message.guild.roles.cache.find(role => role.name === args[roleName].toLowerCase());
 			
-			if (message.member.roles.cache.find(role => role.name === args[roleName]).toLowerCase()) {
+			if (message.member.roles.cache.find(role => role.name === args[roleName].toLowerCase())) {
 				message.member.roles.remove(roleID);
 				console.log("had role and removed: " + roleID);
 			}

@@ -2,13 +2,8 @@ var auction = {};
 var fs = require('fs');
 var imoutoFilePath	=	"./Imouto-chan/imouto.json";
 var suffix = ', desu!';
-var petShop = {"alluring egg": {"price": 200},"slimey egg": {"price": 200},"scaley egg": {"price": 200},"stone egg": {"price": 200},
-				"metal egg": {"price": 200},"rainbow egg": {"price": 200},"cryotube": {"price": 1000},"potato seed": {"price": 20},
-				"corn seed": {"price": 50}, "potato": {"price": 40}, "corn": {"price": 100}, "basic fertilizer": {"price": 500},
-				"advanced fertilizer": {price: 3000}, "special fertilizer": {"price": 10000}};
-shopItems = ["alluring egg","slimey egg","scaley egg","stone egg","metal egg","rainbow egg","cryotube","potato seed","corn seed","carrot seed","tomato seed",
-			"potato","corn","carrot","tomato","basic fertilizer","advanced fertilizer","special fertilizer"];
-
+var dbLogin = require('./dbLogin.json');
+var dbConnectoin = mysql.createConnection(dbLogin);
 
 function saveImouto() {
 	//console.log("in saveWallet: " + wallet["money"]);
@@ -26,56 +21,47 @@ auction.help = function(bot, message, args) {
 }
 
 auction.shop = function(bot, message, args) {
-	var shopList = ["**Shop Inventory**"];
-	var shopItems = ["alluring egg","slimey egg","scaley egg","stone egg","metal egg","rainbow egg","cryotube","potato seed","corn seed","carrot seed",
-					"tomato seed","potato","corn","carrot","tomato","basic fertilizer","advanced fertilizer","special fertilizer"];
-	
-	
-	for(var stock in shopItems) {
-		var itemPrice = global.items[shopItems[stock]].value;//Number(petShop[shopItems[stock]].price);
-		var copperAmount = Math.floor(itemPrice % 1000);
-		var copperString = "";
-		var silverAmount = Math.floor((itemPrice / 1000) % 1000);
-		var silverString = "";
-		var goldAmount = Math.floor((itemPrice / 1000000) % 1000);
-		var goldString = "";
-		var platinumString = "";
-		var platinumAmount = Math.floor(itemPrice / 1000000000);
-		
-		if (platinumAmount > 0) {
-			platinumString = " *" + platinumAmount + " platinum*";
+	var shopList = [];
+	dbConnection.query(`SELECT * FROM items WHERE buyable = 1`, function (errors, results, fields) {
+		for(var stock in results) {
+			var itemPrice = results[stock].value;
+			var copperAmount = Math.floor(itemPrice % 1000);
+			var copperString = "";
+			var silverAmount = Math.floor((itemPrice / 1000) % 1000);
+			var silverString = "";
+			var goldAmount = Math.floor((itemPrice / 1000000) % 1000);
+			var goldString = "";
+			var platinumString = "";
+			var platinumAmount = Math.floor(itemPrice / 1000000000);
+			
+			if (platinumAmount > 0) {
+				platinumString = " *" + platinumAmount + " platinum*";
+			}
+			
+			if (goldAmount > 0) {
+				goldString = " *" + goldAmount + " gold*";
+			}
+			
+			if (silverAmount > 0) {
+				silverString = " *" + silverAmount + " silver*";
+			}
+			
+			if (copperAmount > 0) {
+				copperString = " *" + copperAmount + " copper*";
+			}
+			
+			var pricetag = platinumString + goldString + silverString + copperString;
+			
+			shopList.push(results[stock].name + " " + pricetag);
 		}
-		
-		if (goldAmount > 0) {
-			goldString = " *" + goldAmount + " gold*";
-		}
-		
-		if (silverAmount > 0) {
-			silverString = " *" + silverAmount + " silver*";
-		}
-		
-		if (copperAmount > 0) {
-			copperString = " *" + copperAmount + " copper*";
-		}
-		
-		var pricetag = platinumString + goldString + silverString + copperString;
-		
-		shopList.push(shopItems[stock] + " " + pricetag);
-	}
-	message.channel.send(shopList.join("\n"));
-	
+		message.channel.send(shopList.join("\n"));
+	});
 }
 
 auction.buy = function(bot, message, args) {
 	var itemBought = args.join(" ");
 	var shopItemLength = shopItems.length - 1;
 	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
-	
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
 	
 	if(!args[0]) {
 		message.reply("use $buy <item name>" + suffix);
@@ -110,12 +96,6 @@ auction.sell = function(bot, message, args) {
 	var itemSold = args.join(" ");
 	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
 	
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	
 	if (shopItems.indexOf(itemSold) > -1) {
 		if(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(itemSold) > -1) {
 			var itemPrice = Number(global.items[itemSold].value)/2;
@@ -145,12 +125,6 @@ auction.sell = function(bot, message, args) {
 auction.sellall = function(bot, message, args) {
 	var itemSold = args.join(" ");
 	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
-	
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
 	
 	if (shopItems.indexOf(itemSold) > -1) {
 		if(global.imouto.minigames.treasure[message.author.id].inventory.indexOf(itemSold) > -1) {
@@ -253,10 +227,6 @@ auction.inventory = function(bot, message, args) {
 	var inventoryMap = {};
 	var finalList = [];
 	
-	if (!global.imouto.minigames.treasure[message.author.id].inventory) {
-		global.imouto.minigames.treasure[message.author.id].inventory = [];
-	}
-	
 	var inventoryList = global.imouto.minigames.treasure[message.author.id].inventory;
 	
 	if (inventoryList.length > 0) {
@@ -291,14 +261,6 @@ auction.inventory = function(bot, message, args) {
 
 auction.badges = function(bot, message, args) {
 	var badgeList = [];
-	
-	if (!global.imouto[message.author.id]) {
-		global.imouto[message.author.id] = {};
-	}
-	
-	if (!global.imouto[message.author.id].badges) {
-		global.imouto[message.author.id].badges = [];
-	}
 	
 	var ownedBadges = global.imouto[message.author.id].badges;
 	
