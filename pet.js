@@ -537,7 +537,7 @@ function plantSeed(message, plot, plotDate, seedID, seedDate) {
 
 function checkPlots(message, gardeningLevel, seedID, seedDate) {
 	//checks for empty plots and checks level
-	dbConnection.query(`SELECT * FROM garden WHERE id = ?`, [message.author.id] function (error, results, fields) {
+	dbConnection.query(`SELECT * FROM garden WHERE id = ?`, [message.author.id], function (error, results, fields) {
 		if (results[0].plot1 === null) {
 			plantSeed(message, 'plot1', 'plot1Date', seedID, seedDate);
 		}
@@ -551,7 +551,7 @@ function checkPlots(message, gardeningLevel, seedID, seedDate) {
 			plantSeed(message, 'plot4', 'plot4Date', seedID, seedDate);
 		}
 		else if (results[0].plot5 === null && gardeningLevel >= 40) {
-			plantSeed(message, 'plot5', 'plot5Date', seedID, seedDate));
+			plantSeed(message, 'plot5', 'plot5Date', seedID, seedDate);
 		}
 		else {
 			message.reply("You don't have any available plots" + suffix);
