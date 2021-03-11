@@ -27,43 +27,41 @@ auction.help = function(bot, message, args) {
 
 auction.shop = function(bot, message, args) {
 	var shopList = ["**Shop Inventory**"];
-	var shopItems = ["alluring egg","slimey egg","scaley egg","stone egg","metal egg","rainbow egg","cryotube","potato seed","corn seed","carrot seed",
-					"tomato seed","potato","corn","carrot","tomato","basic fertilizer","advanced fertilizer","special fertilizer"];
+
+	dbConnection.query(`SELECT name, value FROM items WHERE buyable = 1`, function (error, results, fields) {
+		for(var stock in results) {
+			var itemPrice = results[stock].value;
+			var copperAmount = Math.floor(itemPrice % 1000);
+			var copperString = "";
+			var silverAmount = Math.floor((itemPrice / 1000) % 1000);
+			var silverString = "";
+			var goldAmount = Math.floor((itemPrice / 1000000) % 1000);
+			var goldString = "";
+			var platinumString = "";
+			var platinumAmount = Math.floor(itemPrice / 1000000000);
 	
+			if (platinumAmount > 0) {
+				platinumString = " *" + platinumAmount + " platinum*";
+			}
 	
-	for(var stock in shopItems) {
-		var itemPrice = global.items[shopItems[stock]].value;//Number(petShop[shopItems[stock]].price);
-		var copperAmount = Math.floor(itemPrice % 1000);
-		var copperString = "";
-		var silverAmount = Math.floor((itemPrice / 1000) % 1000);
-		var silverString = "";
-		var goldAmount = Math.floor((itemPrice / 1000000) % 1000);
-		var goldString = "";
-		var platinumString = "";
-		var platinumAmount = Math.floor(itemPrice / 1000000000);
-		
-		if (platinumAmount > 0) {
-			platinumString = " *" + platinumAmount + " platinum*";
-		}
-		
-		if (goldAmount > 0) {
-			goldString = " *" + goldAmount + " gold*";
-		}
-		
-		if (silverAmount > 0) {
-			silverString = " *" + silverAmount + " silver*";
-		}
-		
-		if (copperAmount > 0) {
-			copperString = " *" + copperAmount + " copper*";
-		}
-		
-		var pricetag = platinumString + goldString + silverString + copperString;
-		
-		shopList.push(shopItems[stock] + " " + pricetag);
-	}
-	message.channel.send(shopList.join("\n"));
+			if (goldAmount > 0) {
+				goldString = " *" + goldAmount + " gold*";
+			}
 	
+			if (silverAmount > 0) {
+				silverString = " *" + silverAmount + " silver*";
+			}
+	
+			if (copperAmount > 0) {
+				copperString = " *" + copperAmount + " copper*";
+			}
+	
+			var pricetag = platinumString + goldString + silverString + copperString;
+	
+			shopList.push(results[stock].name + " " + pricetag);
+		}
+		message.channel.send(shopList.join("\n"));
+	});
 }
 
 auction.buy = function(bot, message, args) {
