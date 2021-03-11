@@ -587,7 +587,7 @@ bot.on('message', function(message) {
 		}*/
 
 		
-		if(message.content.startsWith(commandPrefix) && message.author.id !== "211522387471106048") {
+		if(message.content.startsWith(commandPrefix) && !message.author.bot) {
 			console.log('handleCommand entered: ' + message);
 			handleCommand(message);
 			

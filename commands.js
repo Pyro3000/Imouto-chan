@@ -330,7 +330,7 @@ function attemptTackle(message, offPlayer, defPlayer) {
 				}
 			}
 			else {
-					message.channel.send(getNameForUser(defPlayer.discordID, message.guild) + " doesn't have the gnomeball" + suffix);
+					message.channel.send(getNameForUser(defPlayer, message.guild) + " doesn't have the gnomeball" + suffix);
 					increaseYellowCards(message, offPlayer);			
 			}
 		}
