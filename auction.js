@@ -66,41 +66,36 @@ auction.shop = function(bot, message, args) {
 
 auction.buy = function(bot, message, args) {
 	var itemBought = args.join(" ");
-	var shopItemLength = shopItems.length - 1;
-	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
-	
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	
+
 	if(!args[0]) {
 		message.reply("use $buy <item name>" + suffix);
 	}
-	else if (shopItems.indexOf(itemBought) > -1) {
-		var itemPrice = Number(global.items[itemBought].value);
-		
-		if (userCurrency > itemPrice) {
-				if (itemBought === "cryotube") {
-					global.imouto.minigames.pets[message.author.id].cryotubeCount++;
-					message.reply("you have obtained an additional cryotube" + suffix);
-				}
-				else {
-					message.reply("you bought a " + itemBought + suffix);
-					global.imouto.minigames.treasure[message.author.id].inventory.push(itemBought);
-					
-				}
+	else {
+		dbConnection.query(`SELECT * FROM items WHERE name = ?`, [itemBought] function (error, results, fields) {
+			if (error) {
+				message.reply("that isn't an available item" + suffix);
+			}
+			else { 
+				var itemID = results.indexOf(itemBought);
+				var itemPrice = results[itemID].value;
 				
-			userCurrency -= itemPrice;
-			global.imouto.minigames.treasure[message.author.id].currency = userCurrency;	
-			saveImouto();
-		}
-		else {
-			message.reply("you cannot afford that item");
-		}
-	} else {
-		message.reply("that isn't an available item" + suffix);
+				dbConnection.query(`SELECT currency FROM stats WHERE id = ?`, [message.author.id],
+					function (error, results, fields) {
+					var userCurrency = results[0].currency;
+					
+					if (userCurrency >= itemPrice) {
+						message.reply("you bought a " + itemBought + suffix);
+						dbConnection.query(`INSERT INTO inventory VALUES (?, ?)`, [message.author.id, itemID]);		
+		
+						userCurrency -= itemPrice;
+						dbConnection.query(`UPDATE stats SET currency = userCurrency WHERE discordID = ?`, [message.author.id]); 
+					}
+					else {
+						message.reply("you cannot afford that item");
+					}
+				});
+			}
+		});
 	}
 }
 
@@ -190,60 +185,36 @@ auction.wallet = function(bot, message, args) {
 	var goldString = "";
 	var copperString = "";
 
-	
-	if (!global.imouto.minigames.treasure[message.author.id]) {
-		global.imouto.minigames.treasure[message.author.id] = {"inventory": [],
-		"currency": 0, "chestsOpened": 0, "lastGuess": 0, "nextGuess": 0, "silverKeys": 0, "goldKeys": 0};
-	}
-	var userCurrency = Number(global.imouto.minigames.treasure[message.author.id].currency);
-	var copperAmount = Math.floor(userCurrency % 1000);
-	var copperString = "";
-	var silverAmount = Math.floor((userCurrency / 1000) % 1000);
-	var silverString = "";
-	var goldAmount = Math.floor((userCurrency / 1000000) % 1000);
-	var platinumString = "";
-	var platinumAmount = Math.floor(userCurrency / 1000000000);
-	
-	if (platinumAmount > 0) {
-		platinumString = " " + platinumAmount + " platinum";
-	}
-	
-	if (goldAmount > 0) {
-		goldString = " " + goldAmount + " gold";
-	}
-	
-	if (silverAmount > 0) {
-		silverString = " " + silverAmount + " silver";
-	}
-	
-	if (copperAmount > 0) {
-		copperString = " " + copperAmount + " copper";
-	}
-	
-	
-	
-	if (!global.imouto.minigames.treasure[message.author.id].silverKeys) {
-		global.imouto.minigames.treasure[message.author.id].silverKeys = 0;
-	}
-	if(!global.imouto.minigames.treasure[message.author.id].goldKeys) {
-		global.imouto.minigames.treasure[message.author.id].goldKeys = 0;
-	}
+	dbConnection.query(`SELECT currency FROM stats WHERE id = ?`, [message.author.id],
+		function (error, results, fields) {
 
-	var silverKeyCount = Number(global.imouto.minigames.treasure[message.author.id].silverKeys);
-	var goldKeyCount = Number(global.imouto.minigames.treasure[message.author.id].goldKeys);
-
-	if (silverKeyCount > 0) {
-		silverKeyAmount = "\r\nSilver Keys: " + silverKeyCount;
-	}
+		var userCurrency = results[0].currency);
+		var copperAmount = Math.floor(userCurrency % 1000);
+		var copperString = "";
+		var silverAmount = Math.floor((userCurrency / 1000) % 1000);
+		var silverString = "";
+		var goldAmount = Math.floor((userCurrency / 1000000) % 1000);
+		var platinumString = "";
+		var platinumAmount = Math.floor(userCurrency / 1000000000);
+		
+		if (platinumAmount > 0) {
+			platinumString = " " + platinumAmount + " platinum";
+		}
+		
+		if (goldAmount > 0) {
+			goldString = " " + goldAmount + " gold";
+		}
+		
+		if (silverAmount > 0) {
+			silverString = " " + silverAmount + " silver";
+		}
+		
+		if (copperAmount > 0) {
+			copperString = " " + copperAmount + " copper";
+		}
 	
-	if (goldKeyCount > 0) {
-		goldKeyAmount = "\r\nGold Keys: " + goldKeyCount;
-	}
-	
-	message.channel.send("You have" + platinumString +
-		goldString + silverString + copperString + suffix + silverKeyAmount + goldKeyAmount);
-	
-	saveImouto();
+		message.channel.send("You have" + platinumString + goldString + silverString + copperString + suffix);
+	});
 }
 
 auction.inventory = function(bot, message, args) {
