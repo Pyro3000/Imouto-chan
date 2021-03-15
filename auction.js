@@ -5,6 +5,9 @@ var dbLogin 		= 	require('./dbLogin.json');
 var dbConnection 	= 	mysql.createConnection(dbLogin);
 var imoutoFilePath	=	"./Imouto-chan/imouto.json";
 var suffix = ', desu!';
+var metalString = ['Platinum', 'Gold', 'Silver', 'Copper'];
+
+
 var petShop = {"alluring egg": {"price": 200},"slimey egg": {"price": 200},"scaley egg": {"price": 200},"stone egg": {"price": 200},
 				"metal egg": {"price": 200},"rainbow egg": {"price": 200},"cryotube": {"price": 1000},"potato seed": {"price": 20},
 				"corn seed": {"price": 50}, "potato": {"price": 40}, "corn": {"price": 100}, "basic fertilizer": {"price": 500},
@@ -34,34 +37,7 @@ auction.shop = function(bot, message, args) {
 	dbConnection.query(`SELECT name, value FROM items WHERE buyable = 1`, function (error, results, fields) {
 		for(stock in results) {
 			var itemPrice = results[stock].value;
-			var copperAmount = Math.floor(itemPrice % 1000);
-			var copperString = "";
-			var silverAmount = Math.floor((itemPrice / 1000) % 1000);
-			var silverString = "";
-			var goldAmount = Math.floor((itemPrice / 1000000) % 1000);
-			var goldString = "";
-			var platinumString = "";
-			var platinumAmount = Math.floor(itemPrice / 1000000000);
-	
-			if (platinumAmount > 0) {
-				platinumString = " *" + platinumAmount + " platinum*";
-			}
-	
-			if (goldAmount > 0) {
-				goldString = " *" + goldAmount + " gold*";
-			}
-	
-			if (silverAmount > 0) {
-				silverString = " *" + silverAmount + " silver*";
-			}
-	
-			if (copperAmount > 0) {
-				copperString = " *" + copperAmount + " copper*";
-			}
-	
-			var pricetag = platinumString + goldString + silverString + copperString;
-	
-			shopList.push(results[stock].name + " " + pricetag);
+			shopList.push(results[stock].name + " " + determineValueString(itemPrice);
 		}
 		message.channel.send(shopList.join("\n"));
 	});
@@ -182,43 +158,40 @@ auction.sellall = function(bot, message, args) {
 }
 
 auction.wallet = function(bot, message, args) {
-	var silverKeyAmount = "";
-	var goldKeyAmount = "";
-	var silverString = "";
-	var goldString = "";
-	var copperString = "";
-
 	dbConnection.query(`SELECT * FROM stats WHERE discordID = ?`, [message.author.id],
 		function (error, results, fields) {
 
 		if (error) {
 			console.log(error);
+			message.reply("There was a problem" + suffix);
 		}
+		else {
+		message.reply("You have " determineValueString(results[0]) + "in your wallet" + suffix);
+		}
+	});
+}
 
-		var userCurrency = results[0].currency;
-		var copperAmount = Math.floor(userCurrency % 1000);
-		var copperString = "";
-		var silverAmount = Math.floor((userCurrency / 1000) % 1000);
-		var silverString = "";
-		var goldAmount = Math.floor((userCurrency / 1000000) % 1000);
-		var platinumString = "";
-		var platinumAmount = Math.floor(userCurrency / 1000000000);
-		
-		if (platinumAmount > 0) {
-			platinumString = " " + platinumAmount + " platinum";
+function determineValueString (currency) {
+	var walletString = "";
+	var currencyVar = currency;
+	for (var i = metalString.length -1; i >= 0; i--) {
+  		var currentCurrency;
+
+		if (i == 0) {
+			currentCurrency = Math.floor(currencyVar);
 		}
-		
-		if (goldAmount > 0) {
-			goldString = " " + goldAmount + " gold";
+		else {
+			currentCurrency = Math.floor(currencyVar % 1000);
 		}
-		
-		if (silverAmount > 0) {
-			silverString = " " + silverAmount + " silver";
+		if (currentCurrency > 0) {
+			walletString =  metalString[i] + " " + currentCurrency + " " + walletString;
 		}
-		
-		if (copperAmount > 0) {
-			copperString = " " + copperAmount + " copper";
-		}
+	currencyVar = Math.floor(currencyVar / 1000);
+	}
+	return walletString;
+}
+
+console.log(walletString);
 	
 		message.channel.send("You have" + platinumString + goldString + silverString + copperString + suffix);
 	});
