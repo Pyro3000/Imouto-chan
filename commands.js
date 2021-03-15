@@ -1012,44 +1012,40 @@ commands.badges = function(bot, message, args) {
 	saveImouto();
 }
 
-function getWallet(message) {
-	dbConnection.query(`SELECT currency FROM stats WHERE discordID = ?`, [message.author.id], function (error, results, fields) {
-		if (error) {
-			return "could not retrieve";
-		}
-		else { 
-			var walletAmount	= results[0].currency;
-			var walletString;
-			var copperAmount	= Math.floor(walletAmount % 1000);
-			var copperString	= "";
-			var silverAmount	= Math.floor((walletAmount / 1000) % 1000);
-			var silverString	= "";
-			var goldAmount 		= Math.floor((walletAmount / 1000000) % 1000);
-			var goldString		= "";
-			var platinum Amount	= Math.floor(walletAmount / 1000000000);
-			var platinumString	= "";
+function getWallet(currency) {
 
-			if (platinumAmount > 0) {
-				platinumString = " *" + platinumAmount + " platinum*";
-			}
+	var walletAmount	= currency;
+	var walletString	= "";
+	var copperAmount	= Math.floor(walletAmount % 1000);
+	var copperString	= "";
+	var silverAmount	= Math.floor((walletAmount / 1000) % 1000);
+	var silverString	= "";
+	var goldAmount 		= Math.floor((walletAmount / 1000000) % 1000);
+	var goldString		= "";
+	var platinumAmount	= Math.floor(walletAmount / 1000000000);
+	var platinumString	= "";
 
-			if (goldAmount > 0) {
-				goldString = " *" + goldAmount + " gold*";
-			}
+	if (platinumAmount > 0) {
+		platinumString = " *" + platinumAmount + " platinum*";
+	}
 
-			if (silverAmount > 0) {
-				silverString = " *" + silverAmount + "gold*";
-			}
+	if (goldAmount > 0) {
+		goldString = " *" + goldAmount + " gold*";
+	}
 
-			if (copperAmount > 0) {
-				copperString = " *" + copperAmount + "copper*";
-			}
+	if (silverAmount > 0) {
+		silverString = " *" + silverAmount + " silver*";
+	}
+
+	if (copperAmount > 0) {
+		copperString = " *" + copperAmount + " copper*";
+	}
 			
-			walletString = platinumString + goldString + silverString + copperString;
+	walletString = platinumString + goldString + silverString + copperString;
 
-			return walletString;
-		}
-	});
+	console.log("wallet string: " + walletString);
+	return walletString;
+
 }
 
 
@@ -1073,7 +1069,7 @@ commands.stats = function(bot, message, args) {
 	
 		message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + results[0].userHealth + "/" + results[0].userMaxHealth + "\r\nTackling: " +
 			results[0].tacklingLevel + "/" + results[0].tacklingLevel + "\r\nPassing: " + results[0].passingLevel + "/" + results[0].passingLevel + "\r\nFortitude: " +
-			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate + "\r\nWallet: " + getWallet(message));
+			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate + "\r\nWallet: " + getWallet(results[0].currency));
 		console.log(results[0]);
 	});
 }

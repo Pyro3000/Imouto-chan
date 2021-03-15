@@ -74,7 +74,7 @@ auction.buy = function(bot, message, args) {
 		message.reply("use $buy <item name>" + suffix);
 	}
 	else {
-		dbConnection.query(`SELECT * FROM items WHERE name = ?`, [itemBought] function (error, results, fields) {
+		dbConnection.query(`SELECT * FROM items WHERE name = ?`, [itemBought], function (error, results, fields) {
 			if (error) {
 				message.reply("that isn't an available item" + suffix);
 			}
@@ -188,10 +188,14 @@ auction.wallet = function(bot, message, args) {
 	var goldString = "";
 	var copperString = "";
 
-	dbConnection.query(`SELECT currency FROM stats WHERE id = ?`, [message.author.id],
+	dbConnection.query(`SELECT * FROM stats WHERE discordID = ?`, [message.author.id],
 		function (error, results, fields) {
 
-		var userCurrency = results[0].currency);
+		if (error) {
+			console.log(error);
+		}
+
+		var userCurrency = results[0].currency;
 		var copperAmount = Math.floor(userCurrency % 1000);
 		var copperString = "";
 		var silverAmount = Math.floor((userCurrency / 1000) % 1000);
