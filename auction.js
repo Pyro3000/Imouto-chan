@@ -37,7 +37,7 @@ auction.shop = function(bot, message, args) {
 	dbConnection.query(`SELECT name, value FROM items WHERE buyable = 1`, function (error, results, fields) {
 		for(stock in results) {
 			var itemPrice = results[stock].value;
-			shopList.push(results[stock].name + " " + determineValueString(itemPrice);
+			shopList.push(results[stock].name + " " + determineValueString(itemPrice));
 		}
 		message.channel.send(shopList.join("\n"));
 	});
@@ -166,7 +166,7 @@ auction.wallet = function(bot, message, args) {
 			message.reply("There was a problem" + suffix);
 		}
 		else {
-		message.reply("You have " determineValueString(results[0]) + "in your wallet" + suffix);
+		message.reply("You have " + determineValueString(results[0].currency) + "in your wallet" + suffix);
 		}
 	});
 }
@@ -184,17 +184,11 @@ function determineValueString (currency) {
 			currentCurrency = Math.floor(currencyVar % 1000);
 		}
 		if (currentCurrency > 0) {
-			walletString =  metalString[i] + " " + currentCurrency + " " + walletString;
+			walletString =  currentCurrency + " " + metalString[i] +  " " + walletString;
 		}
 	currencyVar = Math.floor(currencyVar / 1000);
 	}
 	return walletString;
-}
-
-console.log(walletString);
-	
-		message.channel.send("You have" + platinumString + goldString + silverString + copperString + suffix);
-	});
 }
 
 auction.inventory = function(bot, message, args) {
