@@ -243,7 +243,23 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 	console.log(expGained + " expgain");
 }
 
+function extraGnomeball (message, offPlayer) {
+	var change = Math.random()*100+1;
 
+	if (change <= 15) {
+		message.reply("Somehow, you find a gnomeball has appeared in your inventory anyway" + suffix);
+		dbConnection.query(`UPDATE stats SET hasGnomeball = 1 WHERE discordID = ?`, [message.author.id]);
+	}
+}
+
+function failedTackle(message, offPlayer, tackleDate) {
+	tacklingLevelUp(message, offPlayer, 5);
+	message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 5 minutes" + suffix);
+	tackleDate.setMinutes(tackleDate.getMinutes() + 5);
+	offPlayer.failedTackle = tackleDate;
+	dbConnection.query(`UPDATE stats SET failedTackle = ? WHERE discordID = ?`, [offPlayer.failedTackle, offPlayer.discordID]);
+	extraGnomeball(message, offPlayer);
+}
 
 function conductTackle(message, offPlayer, defPlayer) {
 	var offenseBuff = (Math.random()*1) + 1;
@@ -260,15 +276,7 @@ function conductTackle(message, offPlayer, defPlayer) {
 			tackleSuccess(message, offPlayer, defPlayer, damageDealt);
 		}
 		else {
-			tacklingLevelUp(message, offPlayer, 5);
-			message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 5 minutes" + suffix);
-			tackleDate.setMinutes(tackleDate.getMinutes() + 5);
-			offPlayer.failedTackle = tackleDate;
-			dbConnection.query(`UPDATE stats SET failedTackle = ? WHERE discordID = ?`, [offPlayer.failedTackle,offPlayer.discordID], function (error, results, fields) {
-				if(error) throw error; {
-					console.log(error);
-				}
-			});
+			failedTackle(message, offPlayer, tackleDate);
 		}
 	}
 	else {
@@ -311,7 +319,7 @@ function increaseYellowCards(message, offPlayer) {
 
 function attemptTackle(message, offPlayer, defPlayer) {
 	var attemptedTackleDate = new Date();
-	var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object
+	var banDate = new Date(offPlayer.unbanDate); //get unban date from offPlayer object and convert it to a proper JS date object
 	
 	if(banDate > attemptedTackleDate) {
 		message.reply("you are currently banned from gnomeball" + suffix);
@@ -321,7 +329,7 @@ function attemptTackle(message, offPlayer, defPlayer) {
 			if (defPlayer.discordID === message.author.id) {
 				message.channel.send("You cannot tackle yourself" + suffix);
 			}
-			else if (defPlayer.hasGnomeball) { //takes defending player ID from defending player object
+			else if (defPlayer.hasGnomeball) {
 				if (message.mentions.users.array()[0].status !== "offline") {
 					conductTackle(message, offPlayer, defPlayer);
 				}
@@ -1004,6 +1012,46 @@ commands.badges = function(bot, message, args) {
 	saveImouto();
 }
 
+function getWallet(message) {
+	dbConnection.query(`SELECT currency FROM stats WHERE discordID = ?`, [message.author.id], function (error, results, fields) {
+		if (error) {
+			return "could not retrieve";
+		}
+		else { 
+			var walletAmount	= results[0].currency;
+			var walletString;
+			var copperAmount	= Math.floor(walletAmount % 1000);
+			var copperString	= "";
+			var silverAmount	= Math.floor((walletAmount / 1000) % 1000);
+			var silverString	= "";
+			var goldAmount 		= Math.floor((walletAmount / 1000000) % 1000);
+			var goldString		= "";
+			var platinum Amount	= Math.floor(walletAmount / 1000000000);
+			var platinumString	= "";
+
+			if (platinumAmount > 0) {
+				platinumString = " *" + platinumAmount + " platinum*";
+			}
+
+			if (goldAmount > 0) {
+				goldString = " *" + goldAmount + " gold*";
+			}
+
+			if (silverAmount > 0) {
+				silverString = " *" + silverAmount + "gold*";
+			}
+
+			if (copperAmount > 0) {
+				copperString = " *" + copperAmount + "copper*";
+			}
+			
+			walletString = platinumString + goldString + silverString + copperString;
+
+			return walletString;
+		}
+	});
+}
+
 
 commands.stats = function(bot, message, args) {
 	var userHealthValue;
@@ -1025,7 +1073,7 @@ commands.stats = function(bot, message, args) {
 	
 		message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + results[0].userHealth + "/" + results[0].userMaxHealth + "\r\nTackling: " +
 			results[0].tacklingLevel + "/" + results[0].tacklingLevel + "\r\nPassing: " + results[0].passingLevel + "/" + results[0].passingLevel + "\r\nFortitude: " +
-			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate);
+			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate + "\r\nWallet: " + getWallet(message));
 		console.log(results[0]);
 	});
 }

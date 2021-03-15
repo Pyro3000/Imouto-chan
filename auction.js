@@ -1,5 +1,8 @@
 var auction = {};
 var fs = require('fs');
+var mysql 		= 	require('mysql');
+var dbLogin 		= 	require('./dbLogin.json');
+var dbConnection 	= 	mysql.createConnection(dbLogin);
 var imoutoFilePath	=	"./Imouto-chan/imouto.json";
 var suffix = ', desu!';
 var petShop = {"alluring egg": {"price": 200},"slimey egg": {"price": 200},"scaley egg": {"price": 200},"stone egg": {"price": 200},
@@ -29,7 +32,7 @@ auction.shop = function(bot, message, args) {
 	var shopList = ["**Shop Inventory**"];
 
 	dbConnection.query(`SELECT name, value FROM items WHERE buyable = 1`, function (error, results, fields) {
-		for(var stock in results) {
+		for(stock in results) {
 			var itemPrice = results[stock].value;
 			var copperAmount = Math.floor(itemPrice % 1000);
 			var copperString = "";
