@@ -425,8 +425,10 @@ commands.tackle = function(bot, message, args) {
 }
 
 commands.pass = function(bot, message, args) {
-	
-	if (message.channel.id === '814148824989171772') {
+
+message.reply("Command has been disabled due to users passing to inactive users not in the database");
+
+/*	if (message.channel.id === '814148824989171772') {
 		var passingPlayer = {
 			username: message.author.username,
 			nickname: message.author.nickname,
@@ -483,6 +485,10 @@ commands.pass = function(bot, message, args) {
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
 	}
+*/}
+
+commands.valheim = function(bot, message, args) {
+	message.channel.send("server name: rvheim\nserver address: pyroichiban.com:2456\nserver password: rvcord");
 }
 
 commands.fix = function(bot, message, args) {
