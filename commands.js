@@ -426,9 +426,9 @@ commands.tackle = function(bot, message, args) {
 
 commands.pass = function(bot, message, args) {
 
-message.reply("Command has been disabled due to users passing to inactive users not in the database");
+//message.reply("Command has been disabled due to users passing to inactive users not in the database");
 
-/*	if (message.channel.id === '814148824989171772') {
+	if (message.channel.id === '814148824989171772') {
 		var passingPlayer = {
 			username: message.author.username,
 			nickname: message.author.nickname,
@@ -463,10 +463,17 @@ message.reply("Command has been disabled due to users passing to inactive users 
 						message.channel.send("Bots don't know how to play Gnomeball" + suffix);
 					}
 					else {
-						receivingPlayer.discordID = message.mentions.users.array()[0].id;
-						message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
-							getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
-						gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+						dbConnection.query(`SELECT hasGnomeball FROM stats WHERE discordID = ?`, [receivingPlayer.discordID], function (error, results, fields) {
+							if (results.length > 0) {
+								receivingPlayer.discordID = message.mentions.users.array()[0].id;
+								message.channel.send(getNameForUser(message.author, message.guild) + " passed the gnomeball to " +
+									getNameForUser(message.mentions.users.array()[0], message.guild) + suffix);
+								gnomeballChangeHands(message, receivingPlayer, passingPlayer);
+							}
+							else {
+								message.reply(getNameForUser(message.mentions.users.array()[0], message.guild) + " is not in the database" + suffix);
+							}
+						});
 					}
 				}
 				else {
@@ -485,7 +492,7 @@ message.reply("Command has been disabled due to users passing to inactive users 
 	else {
 		message.channel.send("Gnomeball has been restricted to <#814148824989171772>" + suffix);
 	}
-*/}
+}
 
 commands.valheim = function(bot, message, args) {
 	message.channel.send("server name: rvheim\nserver address: pyroichiban.com:2456\nserver password: rvcord");
