@@ -350,62 +350,46 @@ function attemptTackle(message, offPlayer, defPlayer) {
 }
 
 function getTackleStats(bot, message, args){
-	var offPlayer = {
-			username: message.author.username,
-			nickname: message.author.nickname,
-			discordID: message.author.id,
-			id: message.author.id,
-			userHealth: 0,
-			tacklingLevel: 0,
-			tacklingExp: 0,
-			yellowCards: 0,
-			unbanDate: null,
-			hasGnomeball: false,
-			failedTackle: null
-	}; //Could likely just be empty
 						
-	var defPlayer = {
-			username: message.mentions.users.array()[0].username,
-			nickname: message.mentions.users.array()[0].nickname,
-			discordID: message.mentions.users.array()[0],
-			id: message.mentions.users.array()[0].id,
-			userHealth: 0,
-			userMaxHealth: 0,
-			fortitudeLevel: 0,
-			fortitudeExp: 0,
-			hasGnomeball: false
-	};//as above. Empty both after testing.
-	console.log("IS IT THIS? " + defPlayer.discordID);
 	var queryLine = `SELECT * FROM stats WHERE discordID = ?`; 
 	var defQueryLine = `SELECT * FROM stats WHERE discordID = ?`;
 	
 	dbConnection.query(queryLine, [message.author.id], function (error, results, fields) { //query for Offensive Player
 
-		if (error) throw error; {
-			console.log(error);
-		}
-		offPlayer.discordID 	= message.author.id;
-		offPlayer.userHealth 	= results[0].userHealth;
-		offPlayer.tacklingLevel = results[0].tacklingLevel;
-		offPlayer.tacklingExp 	= results[0].tacklingExp;
-		offPlayer.yellowCards 	= results[0].yellowCards;
-		offPlayer.unbanDate	= results[0].unbanDate;
-		offPlayer.failedTackle 	= results[0].failedTackle;
+		if (results.length > 0) {
+			var offPlayer = {
+				username:	message.author.username,
+				nickname:	message.author.nickname,
+				discordID: 	message.author.id,
+				id:		message.author.id,
+				userHealth:	results[0].userHealth,
+				tacklingLevel:	results[0].tacklingLevel,
+				tacklingExp:	results[0].tacklingExp,
+				yellowCards:	results[0].yellowCards,
+				unbanDate:	results[0].unbanDate,
+				failedTackle:	results[0].failedTackle,
+				hasGnomeball:	results[0].hasGnomeball
+			};
 		console.log("offPlayer: " + offPlayer.userHealth);
+		}
 
 		dbConnection.query(defQueryLine, [message.mentions.users.array()[0].id], function (error, results, fields) { //query for Defensive Player
 
-			if(error) throw error; {
-				console.log(error)
-			}
-			defPlayer.discordID = message.mentions.users.array()[0].id;
-			console.log("OR IS IT THIS? " + defPlayer.discordID);
-			defPlayer.userHealth = results[0].userHealth;
-			defPlayer.userMaxHealth = results[0].userMaxHealth;
-			defPlayer.fortitudeLevel = results[0].fortitudeLevel;
-			defPlayer.fortitudeExp = results[0].fortitudeExp;
-			defPlayer.hasGnomeball = results[0].hasGnomeball;
+			if(results.length > 0) {
+			var defPlayer = {
+				username:	message.mentions.users.array()[0].username,
+				nickname:	message.mentions.users.array()[0].nickname,
+				discordID:	message.mentions.users.array()[0].id,
+				id:		message.mentions.users.array()[0].id,
+				userHealth:	results[0].userHealth,
+				userMaxHealth:	results[0].userMaxHealth,
+				fortitudeLevel:	results[0].fortitudeLevel,
+				fortitudeExp:	results[0].fortitudeExp,
+				hasGnomeball:	results[0].hasGnomeball
+			};
+
 			attemptTackle(message, offPlayer, defPlayer);
+			}
 		});
 	});
 }
@@ -425,8 +409,6 @@ commands.tackle = function(bot, message, args) {
 }
 
 commands.pass = function(bot, message, args) {
-
-//message.reply("Command has been disabled due to users passing to inactive users not in the database");
 
 	if (message.channel.id === '814148824989171772') {
 		var passingPlayer = {

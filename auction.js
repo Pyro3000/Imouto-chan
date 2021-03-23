@@ -160,14 +160,20 @@ auction.sellall = function(bot, message, args) {
 auction.wallet = function(bot, message, args) {
 	dbConnection.query(`SELECT * FROM stats WHERE discordID = ?`, [message.author.id],
 		function (error, results, fields) {
-
-		if (error) {
+			if(results.length > 0) {
+				message.reply("You have " + determineValueString(results[0].currency +
+				"in your wallet" + suffix));
+			}
+			else {
+				message.reply("There was an error with your data" + suffix);
+			}
+		/*if (error) {
 			console.log(error);
 			message.reply("There was a problem" + suffix);
 		}
 		else {
 		message.reply("You have " + determineValueString(results[0].currency) + "in your wallet" + suffix);
-		}
+		}*/
 	});
 }
 
