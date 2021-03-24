@@ -51,14 +51,11 @@ auction.buy = function(bot, message, args) {
 	}
 	else {
 		dbConnection.query(`SELECT * FROM items WHERE name = ?`, [itemBought], function (error, results, fields) {
-			if (error) {
-				message.reply("that isn't an available item" + suffix);
-			}
-			else { 
+			if (results.length > 0) { 
 				var itemID = results.indexOf(itemBought);
 				var itemPrice = results[itemID].value;
 				
-				dbConnection.query(`SELECT currency FROM stats WHERE id = ?`, [message.author.id],
+				dbConnection.query(`SELECT currency FROM stats WHERE discordID = ?`, [message.author.id],
 					function (error, results, fields) {
 					var userCurrency = results[0].currency;
 					
@@ -73,6 +70,9 @@ auction.buy = function(bot, message, args) {
 						message.reply("you cannot afford that item");
 					}
 				});
+			}
+			else {
+				message.reply("That is not an available item" + suffix);
 			}
 		});
 	}
