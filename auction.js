@@ -52,9 +52,9 @@ auction.buy = function(bot, message, args) {
 	else {
 		dbConnection.query(`SELECT * FROM items WHERE name = ?`, [itemBought], function (error, results, fields) {
 			if (results.length > 0) { 
-				var itemID = results.indexOf(itemBought);
-				var itemPrice = results[itemID].value;
-				
+				var itemID = results[0].id;
+				var itemPrice = results[0].value;
+
 				dbConnection.query(`SELECT currency FROM stats WHERE discordID = ?`, [message.author.id],
 					function (error, results, fields) {
 					var userCurrency = results[0].currency;

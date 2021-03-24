@@ -132,3 +132,5 @@ make tackles more effective Christ I feel like all we do is ineffective tackles 
 fix your bot -Snake1235
  -Poison333
 fishing minigame for imouto -Snake1235
+$ballcount -Jackstick
+reduce ban time to 4hrs -Jackstick
