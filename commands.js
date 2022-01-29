@@ -9,6 +9,13 @@ var dbConnection 	= 	mysql.createConnection(dbLogin);
 var urlPath 		= './Imouto-chan/';
 var imagePath 		= './Imouto-chan/Images/';
 var suffix = ', desu!';
+var Scraper = require('images-scraper');
+
+const google = new Scraper({
+	puppeteer: {
+		headless: true
+	}
+})
 
 /*function cleanString(x) {
 	return x.replace(/[^A-Za-z0-9_]/g,"");
@@ -518,6 +525,31 @@ commands.register = function(bot, message, args) {
 	console.log("author: " + message.author.username);
 	console.log("args: " + args);
 
+}
+
+commands.image = function(bot, message, args) {
+	if(args[0]) {
+		//message.channel.send("framework successful");
+		const imageQuery = args.join(' ');
+		console.log("imageQuery: " + imageQuery);
+		async function getImage(bot, message, imageQuery) {
+			console.log("async function entered");
+			const imageResults = await google.scrape(imageQuery, 1);
+			console.log("image results: " + imageResults);
+			if (imageResults.length >= 1){
+				message.channel.send(imageResults[0].url);
+				console.log("url: " + imageResults[0].url);
+			}
+			else {
+				message.channel.send("no results found for: " + imageQuery + suffix);
+			}
+		};
+		getImage(bot, message, imageQuery);
+
+	}
+	else{
+		message.reply("You need to add a search item" + suffix);
+	}
 }
 
 commands.info = function(bot, message, args) {

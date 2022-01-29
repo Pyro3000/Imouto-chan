@@ -61,7 +61,7 @@ auction.buy = function(bot, message, args) {
 					
 					if (userCurrency >= itemPrice) {
 						message.reply("you bought a " + itemBought + suffix);
-						dbConnection.query(`INSERT INTO inventory VALUES (?, ?)`, [message.author.id, itemID]);		
+						dbConnection.query(`INSERT INTO inventory (id, item) VALUES ?`, [message.author.id, itemID]);		
 		
 						userCurrency -= itemPrice;
 						dbConnection.query(`UPDATE stats SET currency = userCurrency WHERE discordID = ?`, [message.author.id]); 
