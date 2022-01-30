@@ -13,6 +13,7 @@ var date = new Date();
 const clientId = '211522387471106048'; //imouto client ID
 const guildId = '208498021078401025'; //RV ID
 const commands = [];
+//bot.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./Imouto-chan/commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -32,6 +33,7 @@ const rest = new REST({ version: '9' }).setToken(token);
 		);
 
 		console.log('Successfully reloaded application (/) commands.');
+		console.log('command list: ' + bot.commands);
 	} catch (error) {
 		console.error(error);
 	}
@@ -694,9 +696,13 @@ bot.on('message', function(message) {
 
 bot.on('interactionCreate', async interaction => {
 	console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction.`);
+	console.log(interaction);
+	console.log('interaction command name: ' + interaction.commandName);
+	console.log('bot commands: ' + bot.commands); //returns undefined
+	console.log('just as commands: ' + commands); //returns [object Object]
 	if (!interaction.isCommand()) return;
 
-	const command = bot.commands.get(interaction.commandName);
+	const command = bot.commands.get(interaction.commandName); //if only "commands.get" then error: commands.get not a function
 
 	if(!command) return;
 
