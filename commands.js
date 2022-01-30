@@ -223,7 +223,9 @@ function tackleSuccess(message, offPlayer, defPlayer, damageDealt) {
 		expGained = 10 + levelDifference;
 		tacklingLevelUp(message, offPlayer, expGained);
 		fortitudeLevelUp(message, defPlayer, defExpGain);
+
 		healDate.setMinutes(healDate.getMinutes() + 10);
+
 		dbConnection.query(`UPDATE stats SET healDate = ?, userHealth = 0  WHERE discordID = ?`,[healDate, defPlayer.discordID] ,function (error, results, fields) {
 			if(error) throw error; {
 				console.log(error);
@@ -259,6 +261,7 @@ function extraGnomeball (message, offPlayer) {
 	}
 }
 
+
 function failedTackle(message, offPlayer, tackleDate) {
 	tacklingLevelUp(message, offPlayer, 5);
 	message.reply("you have failed to make any impact" + suffix + "\r\nTry again in 5 minutes" + suffix);
@@ -283,7 +286,9 @@ function conductTackle(message, offPlayer, defPlayer) {
 			tackleSuccess(message, offPlayer, defPlayer, damageDealt);
 		}
 		else {
+
 			failedTackle(message, offPlayer, tackleDate);
+
 		}
 	}
 	else {
@@ -490,6 +495,7 @@ commands.valheim = function(bot, message, args) {
 commands.fix = function(bot, message, args) {
 //COMMAND RESERVED FOR DATA ERRORS	
 }
+
 
 commands.test = function(bot, message, args) {
 //COMMAND RESERVED FOR FUNCTION TESTS
@@ -1062,6 +1068,7 @@ function getWallet(currency) {
 
 	if (silverAmount > 0) {
 		silverString = " *" + silverAmount + " silver*";
+
 	}
 
 	if (copperAmount > 0) {
@@ -1096,7 +1103,9 @@ commands.stats = function(bot, message, args) {
 	
 		message.channel.send(getNameForUser(message.author, message.guild) + " your stats are:\r\nHealth: " + results[0].userHealth + "/" + results[0].userMaxHealth + "\r\nTackling: " +
 			results[0].tacklingLevel + "/" + results[0].tacklingLevel + "\r\nPassing: " + results[0].passingLevel + "/" + results[0].passingLevel + "\r\nFortitude: " +
+
 			results[0].fortitudeLevel + "/" + results[0].fortitudeLevel + "\r\nGardening: " + results[0].gardeningLevel + "\r\nYellow Cards: " + results[0].yellowCards + "\r\nUnban Date: " +results[0].unbanDate + "\r\nWallet: " + getWallet(results[0].currency));
+
 		console.log(results[0]);
 	});
 }

@@ -306,6 +306,7 @@ function healUser(message) {
 		if(userMaxHP > userHP) {
 			if(currentTime > healingTime) {
 				var diff = Math.abs(Number(healingTime) - Number(currentTime));
+
 				var minDiff = Math.floor((diff/1000)/60);
 				
 				userHP += (minDiff * (userMaxHP/10));
@@ -586,8 +587,8 @@ bot.on('message', function(message) {
 				break;
 		}*/
 
-		
 		if(message.content.startsWith(commandPrefix) && !message.author.bot) {
+
 			console.log('handleCommand entered: ' + message);
 			handleCommand(message);
 			
