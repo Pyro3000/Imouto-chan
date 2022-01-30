@@ -537,8 +537,14 @@ commands.image = function(bot, message, args) {
 			const imageResults = await google.scrape(imageQuery, 1);
 			console.log("image results: " + imageResults);
 			if (imageResults.length >= 1){
-				message.channel.send(imageResults[0].url);
-				console.log("url: " + imageResults[0].url);
+				if(!imageResults[0].url.includes("fbsbx")){
+					message.channel.send(imageResults[0].url);
+					console.log("url: " + imageResults[0].url);
+				}
+				else {
+					message.channel.send("fbsbx query detected from '" + imageQuery +"'" + suffix);
+				}
+
 			}
 			else {
 				message.channel.send("no results found for: " + imageQuery + suffix);
