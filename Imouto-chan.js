@@ -13,12 +13,17 @@ var date = new Date();
 const clientId = '211522387471106048'; //imouto client ID
 const guildId = '208498021078401025'; //RV ID
 const commands = [];
-//bot.commands = new Discord.Collection();
+console.log('commands by itself right after declared: ' + commands);
+console.log('bot.commands: ' + bot.commands);
+bot.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./Imouto-chan/commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
+	console.log('FILE: ' + file);
+	console.log('BEFORE PUSH: ' + commands);
 	const command = require(`./commands/${file}`);
 	commands.push(command.data.toJSON());
+	console.log('AFTER PUSH: ' + JSON.stringify(commands[0], null, 2));
 }
 
 const rest = new REST({ version: '9' }).setToken(token);
@@ -26,7 +31,7 @@ const rest = new REST({ version: '9' }).setToken(token);
 (async () => {
 	try {
 		console.log('Started refreshing application (/) commands.');
-
+		console.log('command list before rest.put: ' + bot.commands);
 		await rest.put(
 			Routes.applicationGuildCommands(clientId, guildId),
 			{ body: commands },
@@ -701,9 +706,10 @@ bot.on('interactionCreate', async interaction => {
 	console.log('bot commands: ' + bot.commands); //returns undefined
 	console.log('just as commands: ' + commands); //returns [object Object]
 	if (!interaction.isCommand()) return;
-
+	console.log('interaction.commandName: ' + interaction.commandName);
+	console.log('bot.commands.get: ' + bot.commands.get(interaction.commandName));
 	const command = bot.commands.get(interaction.commandName); //if only "commands.get" then error: commands.get not a function
-
+	console.log('command: ' + command);
 	if(!command) return;
 
 	try {
