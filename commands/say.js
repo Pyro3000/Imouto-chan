@@ -9,7 +9,17 @@ module.exports = {
 				.setDescription('What you want Imouto to say')
 				.setRequired(true)),
 	async execute(interaction) {
-		console.log('slash say command attempted');
-		await interaction.reply('This is a test command, desu!');
+
+		if(interaction.user.id == '208165377358823425') {
+
+			console.log('slash say command attempted');
+			const input = interaction.options.getString("input");
+			await interaction.reply(input + ', desu!');
+			console.log('user ID: ' + interaction.user.id);
+		}
+		else {
+			await interaction.reply({ content: 'Only Master can use that command, desu!',
+				ephemeral: true });
+		}
 	},
 };

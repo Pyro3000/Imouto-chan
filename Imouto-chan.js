@@ -13,17 +13,20 @@ var date = new Date();
 const clientId = '211522387471106048'; //imouto client ID
 const guildId = '208498021078401025'; //RV ID
 const commands = [];
-console.log('commands by itself right after declared: ' + commands);
+//console.log('commands by itself right after declared: ' + commands);
 console.log('bot.commands: ' + bot.commands);
 bot.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./Imouto-chan/commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
 	console.log('FILE: ' + file);
-	console.log('BEFORE PUSH: ' + commands);
+	//console.log('BEFORE PUSH: ' + commands);
 	const command = require(`./commands/${file}`);
 	commands.push(command.data.toJSON());
+	console.log('command during for loop: ' + command.data.name);
+	bot.commands.set(command.data.name, command);//changed command to command.data in attempt to match
 	console.log('AFTER PUSH: ' + JSON.stringify(commands[0], null, 2));
+	console.log('command.name, command: ' + command.name + ', ' + command);
 }
 
 const rest = new REST({ version: '9' }).setToken(token);
@@ -702,14 +705,17 @@ bot.on('message', function(message) {
 bot.on('interactionCreate', async interaction => {
 	console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction.`);
 	console.log(interaction);
-	console.log('interaction command name: ' + interaction.commandName);
-	console.log('bot commands: ' + bot.commands); //returns undefined
-	console.log('just as commands: ' + commands); //returns [object Object]
+	console.log('interaction command name: ' + interaction.commandName);//returns as say
+	console.log('bot commands to string: ' + JSON.stringify(bot.commands));
+	console.log('commands to string: ' + JSON.stringify(commands));
 	if (!interaction.isCommand()) return;
-	console.log('interaction.commandName: ' + interaction.commandName);
+	console.log('interaction.commandName: ' + interaction.commandName);//returns as say
 	console.log('bot.commands.get: ' + bot.commands.get(interaction.commandName));
+	console.log('bot.commands as a string: ' + JSON.stringify(bot.commands, null, 2));
 	const command = bot.commands.get(interaction.commandName); //if only "commands.get" then error: commands.get not a function
 	console.log('command: ' + command);
+	console.log('keys: ' + JSON.stringify(bot.commands.keys(0)));
+
 	if(!command) return;
 
 	try {
